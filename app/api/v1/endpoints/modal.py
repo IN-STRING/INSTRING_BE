@@ -1,0 +1,52 @@
+from fastapi import APIRouter, HTTPException, Depends
+from sqlmodel import select
+from typing import Annotated
+from app.api.depends import SessionDep, check_token
+from app.schemas.modal_dto import ModalDTO
+from app.models.postgresDB.guitar import Guitar
+from app.models.postgresDB.level import Level
+from app.models.postgresDB.g_string import GString
+from app.models.postgresDB.user import User
+
+
+model_router = APIRouter()
+
+
+@model_router.get("/modal_check")
+async def modal_bool(session: SessionDep, userdata: Annotated[dict, Depends(check_token)]):
+    user = session.get(User, userdata["sub"])
+    return user.modal
+
+@model_router.post("/modal_add")
+async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotated[dict, Depends(check_token)]):
+    user = session.get(User, userdata["sub"])
+    if user.modal:
+        raise HTTPException(status_code=400, detail="이미 완료함")
+
+    result = session.exec(
+        (
+            select(Guitar, GString, Level)
+            .where(Guitar.name == modaldata.guitars)
+            .where(GString.name == modaldata.strings)
+            .where(Level.name == modaldata.levels)
+        )
+    ).first()
+
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail=f"선택한 정보를 DB에서 찾을 수 없습니다. (입력값: {modaldata.guitars}, {modaldata.strings}, {modaldata.levels})"
+        )
+
+    g, gs, lv = result
+
+    user.guitar_id = g.id
+    user.level_id = lv.id
+    user.string_id = gs.id
+    user.modal = modaldata.modal
+    user.machinery = modaldata.machinery
+
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return {"Message": "success"}

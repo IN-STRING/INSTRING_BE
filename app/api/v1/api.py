@@ -1,0 +1,11 @@
+from fastapi import APIRouter
+from app.api.v1.endpoints.auth import auth_router
+from app.api.v1.endpoints.change_info import change_router
+from app.api.v1.endpoints.modal import model_router
+
+
+api_router = APIRouter()
+
+api_router.include_router(auth_router, prefix="/auth")
+api_router.include_router(change_router, prefix="/change_info")
+api_router.include_router(model_router, prefix="/model")
