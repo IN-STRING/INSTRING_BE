@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import select
 from typing import Annotated
-from app.api.depends import SessionDep, check_token
+from app.core.security.jwt_token import jwt_manager
+from app.api.depends import SessionDep
 from app.schemas.modal_dto import ModalDTO
 from app.models.postgresDB.guitar import Guitar
 from app.models.postgresDB.level import Level
@@ -13,12 +14,12 @@ model_router = APIRouter()
 
 
 @model_router.get("/modal_check")
-async def modal_bool(session: SessionDep, userdata: Annotated[dict, Depends(check_token)]):
+async def modal_bool(session: SessionDep, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
     user = session.get(User, userdata["sub"])
     return user.modal
 
 @model_router.post("/modal_add")
-async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotated[dict, Depends(check_token)]):
+async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
     user = session.get(User, userdata["sub"])
     if user.modal:
         raise HTTPException(status_code=400, detail="이미 완료함")

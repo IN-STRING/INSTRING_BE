@@ -1,6 +1,4 @@
 from app.models.postgresDB.base import Base
-from app.schemas.level_step import LevelStep
-#from app.models.postgresDB.user import User
 from sqlmodel import Field, Relationship
 from typing import Optional
 

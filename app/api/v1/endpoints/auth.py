@@ -7,15 +7,13 @@ from fastapi_mail import MessageSchema
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 from datetime import datetime, timedelta
-from app.api.depends import SessionDep, oauth2_scheme
+from app.api.depends import SessionDep
+from app.utils.auth_utils.auth import auth_manager
+from app.core.security.jwt_token import jwt_manager
 from app.core.config import fm, settings
 from app.schemas.auth_dto import Email, UserJoinDTO, VerifyDTO, Tokens, RefreshToken, NewAccessToken
 from app.models.redisDB.redis_set import redis_client
 from app.models.postgresDB.user import User
-from app.utils.auth_utils.email_cord import make_auth_otp
-from app.utils.auth_utils.hash import hash_password
-from app.utils.auth_utils.user_verfiy import check_user
-from app.core.security.jwt_token import create_token
 
 auth_router = APIRouter()
 
@@ -27,7 +25,7 @@ async def check_email(session: SessionDep, email: Email):
     if result:
         raise HTTPException(status_code=409, detail="이미 가입된 이메일 입니다")
 
-    otp = make_auth_otp()
+    otp = auth_manager.make_auth_otp()
     redis_client.setex(f"verify:{email.email}", 300, otp)
 
     message = MessageSchema(
@@ -57,11 +55,12 @@ async def check_otp(data: VerifyDTO):
 @auth_router.post("/join")
 async def login(session: SessionDep, userdata: UserJoinDTO ):
     try:
-        result = redis_client.get(f"verify:{userdata.email}")
+        result = redis_client.get(f"verified:{userdata.email}")
         if not result:
             raise HTTPException(status_code=404, detail="인증되지 않은 이메일 입니다")
 
-        hashed_password = hash_password(userdata.password)
+        # hashed_password = hash_password(userdata.password)
+        hashed_password = auth_manager.hash_password(userdata.password)
         dict_user = userdata.model_dump()
         dict_user["password"] = hashed_password
         db_user = User.model_validate(dict_user)
@@ -83,15 +82,15 @@ async def login(session: SessionDep, userdata: UserJoinDTO ):
 
 @auth_router.post("/login")
 async def login(session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user = check_user(session, form_data.username, form_data.password)
+    user = auth_manager.check_user(session, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="입력 정보가 일치하지 않습니다")
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_token({"sub": str(user.id), "type": "access"}, access_token_expires)
+    access_token = jwt_manager.create_token({"sub": str(user.id), "type": "access"}, access_token_expires)
 
     refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    refresh_token = create_token({"sub": str(user.id), "type": "refresh"}, refresh_token_expires)
+    refresh_token = jwt_manager.create_token({"sub": str(user.id), "type": "refresh"}, refresh_token_expires)
 
     redis_client.setex(
         f"refresh:{user.id}",
@@ -116,12 +115,12 @@ async def get_access_token(token: RefreshToken):
         raise HTTPException(status_code=401, detail="not token")
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_token({"sub": str(user_id), "type": "access"}, access_token_expires)
+    access_token = jwt_manager.create_token({"sub": str(user_id), "type": "access"}, access_token_expires)
     return NewAccessToken(access_token=access_token, token_type="bearer")
 
 
 @auth_router.post("/logout")
-async def logout(access_token: Annotated[str, Depends(oauth2_scheme)]):
+async def logout(access_token: Annotated[str, Depends(jwt_manager.oauth2_scheme)]):
     payload = jwt.decode(access_token, settings.KEY, algorithms=["HS256"])
     user_id = payload["sub"]
 
