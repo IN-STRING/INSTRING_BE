@@ -1,7 +1,7 @@
-from app.models.postgresDB.guitar import Guitar
-from app.models.postgresDB.level import Level
+from app.models.postgresDB.metatable.guitar import Guitar
+from app.models.postgresDB.metatable.level import Level
 from app.models.postgresDB.base import Base
-from app.models.postgresDB.g_string import GString
+from app.models.postgresDB.metatable.g_string import GString
 from sqlmodel import Field, Relationship
 from typing import Optional
 

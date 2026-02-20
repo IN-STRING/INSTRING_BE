@@ -27,5 +27,5 @@ class TimestampMixin(SQLModel):
 class Base(TimestampMixin):
     id: Optional[int] = Field(default=None, primary_key=True)
 
-# uv run alembic revision --autogenerate -m "modal_modification"
+# uv run alembic revision --autogenerate -m "add_folder"
 # uv run alembic upgrade head
