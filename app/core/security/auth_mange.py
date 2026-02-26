@@ -10,9 +10,9 @@ from app.models.postgresDB.maintable.user import User
 class AuthManager:
     def __init__(self):
         self.password_hash = PasswordHash.recommended()
-        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
-        self.secret_key = settings.KEY
-        self.algorithm = "HS256"
+        # self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+        # self.secret_key = settings.KEY
+        # self.algorithm = "HS256"
 
     def hash_password(self, password: str):
         return self.password_hash.hash(password)

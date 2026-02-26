@@ -8,8 +8,9 @@ from typing import Optional
 class User(Base, table=True):
     email: str = Field(unique=True, index=True)
     password: str
-    machinery: bool = Field(default=False)
-    modal: bool = Field(default=False)
+    device: Optional[bool] = Field(default=False, unique=True, index=True)
+    modal: Optional[bool] = Field(default=False)
+    device_id: Optional[str] = Field(default=None, unique=True)
     string_id: Optional[int] = Field(default=None, foreign_key="gstring.id", index=True)
     level_id: Optional[int] = Field(default=None, foreign_key="level.id", index=True)
     guitar_id: Optional[int] = Field(default=None, foreign_key="guitar.id", index=True)

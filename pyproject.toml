@@ -13,4 +13,5 @@ dependencies = [
     "pyjwt>=2.11.0",
     "redis>=7.1.0",
     "sqlmodel>=0.0.32",
+    "websockets>=16.0",
 ]
