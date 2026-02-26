@@ -2,15 +2,15 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
+from sqlmodel import SQLModel
 from alembic import context
 from app.models.postgresDB.base import Base
-from app.models.postgresDB.maintable.user import User
-from app.models.postgresDB.maintable.song import Song
-from app.models.postgresDB.metatable.level import Level
-from app.models.postgresDB.metatable.guitar import Guitar
-from app.models.postgresDB.metatable.g_string import GString
-from app.models.postgresDB.metatable.category import Category
+from app.models.postgresDB.song import Song
+from app.models.postgresDB.level import Level
+from app.models.postgresDB.user import User
+from app.models.postgresDB.guitar import Guitar
+from app.models.postgresDB.g_string import GString
+from app.models.postgresDB.category import Category
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -26,6 +26,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
+# target_metadata = SQLModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

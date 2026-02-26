@@ -12,7 +12,7 @@ class JWTManager:
     def __init__(self):
         self.secret_key = settings.KEY
         self.algorithm = "HS256"
-        # self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
         self.credentials_exception = HTTPException(
             status_code=401,
             detail="Could not validate credentials",

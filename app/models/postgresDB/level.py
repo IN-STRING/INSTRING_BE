@@ -1,6 +1,10 @@
-from app.models.postgresDB.base import Base
+from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, Relationship
-from typing import Optional
+from app.models.postgresDB.base import Base
+
+if TYPE_CHECKING:
+    from app.models.postgresDB.song import Song
+    from app.models.postgresDB.user import User
 
 class Level(Base, table=True):
     name: Optional[str] = Field(default=None)

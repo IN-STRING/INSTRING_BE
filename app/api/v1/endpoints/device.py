@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Annotated
 from app.api.depends import SessionDep
 from app.core.security.jwt_token import jwt_manager
-from app.models.postgresDB.maintable.user import User
+from app.models.postgresDB.user import User
 from app.schemas.device_register import DeviceRegisterRequest
 
 

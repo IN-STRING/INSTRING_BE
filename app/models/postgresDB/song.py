@@ -1,8 +1,7 @@
 from sqlmodel import Field, Relationship
 from typing import Optional
 from app.models.postgresDB.base import Base
-from app.models.postgresDB.metatable.level import Level
-from app.models.postgresDB.metatable.category import Category
+from app.models.postgresDB.level import Level
 
 class Song(Base, table=True):
     name: str

@@ -8,7 +8,7 @@ from app.api.depends import SessionDep
 from app.core.config import fm, settings
 from app.schemas.auth_dto import Email, Password, VerifyDTO, TempToken
 from app.models.redisDB.redis_set import redis_client
-from app.models.postgresDB.maintable.user import User
+from app.models.postgresDB.user import User
 from app.core.security.auth_mange import auth_manager
 from app.core.security.jwt_token import jwt_manager
 

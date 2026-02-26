@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from typing import Annotated
 from app.api.depends import SessionDep
-from app.models.postgresDB.maintable.user import User
+from app.models.postgresDB.user import User
 from app.core.security.jwt_token import jwt_manager
 
 

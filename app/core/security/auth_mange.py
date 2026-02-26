@@ -1,11 +1,9 @@
 import string
 import secrets
-from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from sqlmodel import Session, select
-from app.core.config import settings
-from app.models.postgresDB.maintable.user import User
+from app.models.postgresDB.user import User
 
 class AuthManager:
     def __init__(self):

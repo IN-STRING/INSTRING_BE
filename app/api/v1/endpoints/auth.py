@@ -13,7 +13,7 @@ from app.core.security.jwt_token import jwt_manager
 from app.core.config import fm, settings
 from app.schemas.auth_dto import Email, UserJoinDTO, VerifyDTO, Tokens, RefreshToken, NewAccessToken
 from app.models.redisDB.redis_set import redis_client
-from app.models.postgresDB.maintable.user import User
+from app.models.postgresDB.user import User
 
 auth_router = APIRouter()
 

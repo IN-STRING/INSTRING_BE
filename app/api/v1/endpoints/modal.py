@@ -4,10 +4,10 @@ from typing import Annotated
 from app.core.security.jwt_token import jwt_manager
 from app.api.depends import SessionDep
 from app.schemas.modal_dto import ModalDTO
-from app.models.postgresDB.metatable.guitar import Guitar
-from app.models.postgresDB.metatable.level import Level
-from app.models.postgresDB.metatable.g_string import GString
-from app.models.postgresDB.maintable.user import User
+from app.models.postgresDB.guitar import Guitar
+from app.models.postgresDB.level import Level
+from app.models.postgresDB.g_string import GString
+from app.models.postgresDB.user import User
 
 
 model_router = APIRouter()
