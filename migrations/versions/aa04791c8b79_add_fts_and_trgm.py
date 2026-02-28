@@ -1,0 +1,52 @@
+"""add_fts_and_trgm
+
+Revision ID: aa04791c8b79
+Revises: 3c0385963d53
+Create Date: 2026-03-01 01:40:04.258248
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision: str = 'aa04791c8b79'
+down_revision: Union[str, Sequence[str], None] = '3c0385963d53'
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade():
+    op.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+
+    op.execute("""
+               ALTER TABLE song
+                   ADD COLUMN IF NOT EXISTS search_vector tsvector
+                   GENERATED ALWAYS AS (
+                   setweight(to_tsvector('simple', coalesce (name, '')), 'A') ||
+                   setweight(to_tsvector('simple', coalesce (artist, '')), 'B')
+                   ) STORED;
+               """)
+
+    op.execute("""
+               CREATE INDEX IF NOT EXISTS idx_song_search_vector
+                   ON song USING GIN (search_vector);
+               """)
+
+    op.execute("""
+               CREATE INDEX IF NOT EXISTS idx_song_name_trgm
+                   ON song USING GIN (name gin_trgm_ops);
+               """)
+    op.execute("""
+               CREATE INDEX IF NOT EXISTS idx_song_artist_trgm
+                   ON song USING GIN (artist gin_trgm_ops);
+               """)
+
+
+def downgrade():
+    op.execute("DROP INDEX IF EXISTS idx_song_artist_trgm;")
+    op.execute("DROP INDEX IF EXISTS idx_song_name_trgm;")
+    op.execute("DROP INDEX IF EXISTS idx_song_search_vector;")
+    op.execute("ALTER TABLE song DROP COLUMN IF EXISTS search_vector;")

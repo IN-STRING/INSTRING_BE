@@ -1,7 +1,13 @@
 from sqlmodel import Field, Relationship
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from app.models.postgresDB.base import Base
 from app.models.postgresDB.level import Level
+from app.models.postgresDB.SongCategory_link import SongCategoryLink
+from app.models.postgresDB.category import Category
+
+if TYPE_CHECKING:
+    from app.models.postgresDB.level import Level
+    from app.models.postgresDB.category import Category
 
 class Song(Base, table=True):
     name: str
@@ -9,12 +15,12 @@ class Song(Base, table=True):
     style: str
     speed: str
     level_id: Optional[int] = Field(default=None, foreign_key="level.id", index=True)
-    # category_id: Optional[int] = Field(default=None, foreign_key="category.id", index=True)
     chord: str
     tube_url: str
     file_url: str
 
-    song_level: Level = Relationship(back_populates="songs")
+    categories: list[Category] = Relationship(back_populates="songs", link_model=SongCategoryLink)
+    song_level: Optional[Level] = Relationship(back_populates="songs")
 
 
 # DDD

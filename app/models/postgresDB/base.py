@@ -27,5 +27,5 @@ class TimestampMixin(SQLModel):
 class Base(TimestampMixin):
     id: Optional[int] = Field(default=None, primary_key=True)
 
-# uv run alembic revision --autogenerate -m "add_category_6"
+# uv run alembic revision --autogenerate -m "just_10"
 # uv run alembic upgrade head

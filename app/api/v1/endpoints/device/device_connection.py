@@ -9,6 +9,15 @@ from app.schemas.device_register import DeviceRegisterRequest
 device_router = APIRouter()
 
 
+@device_router.get("/device/check")
+async def check_device(
+        session: SessionDep,
+        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+):
+    user = session.get(User, userdata["sub"])
+    return user.is_device
+
+
 # 프론트에서 여기로 접근
 @device_router.post("/device/register")
 async def register_device(
@@ -22,9 +31,10 @@ async def register_device(
         raise HTTPException(400, "이미 등록된 기기입니다")
 
     device = User(
-        device_id=body.device_id
+        device_id=body.device_id,
+        is_device=True,
     )
     session.add(device)
     session.commit()
 
-    return {"message": "기기 등록 완료", "device_id": body.device_id}
+    return {"message": "기기 등록 완료"}
