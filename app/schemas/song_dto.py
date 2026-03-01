@@ -1,6 +1,12 @@
 from pydantic import BaseModel
 from app.models.postgresDB.category import Category
 
+class SongS(BaseModel):
+    id: int
+    name: str
+    artist: str
+    level_id: int
+
 class WS(BaseModel):
     id: int
     name: str

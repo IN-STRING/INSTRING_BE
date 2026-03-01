@@ -1,10 +1,11 @@
-from sqlalchemy import text, func
+from sqlalchemy import text
 from sqlmodel import Session
 
 
 def search_songs(session: Session, query: str, limit: int = 20):
     sql = text("""
                SELECT id,
+                      level_id,
                       name,
                       artist,
                       style,

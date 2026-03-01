@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     USE_CREDENTIALS: bool
     VALIDATE_CERTS: bool
 
+    AWS_ACCESS_KEY: str
+    AWS_SECRET_KEY: str
+    AWS_REGION: str
+
     model_config = SettingsConfigDict(
         env_file=env_path,
         env_file_encoding="utf-8"

@@ -1,8 +1,5 @@
 from pydantic import BaseModel
-from app.models.postgresDB.song import Song
+from app.schemas.song_dto import SongS
 
 class SearchCategory(BaseModel):
-    id: int
-    name: str
-    ctype: str
-    songs: list[Song] = []
+    songs: list[SongS] = []

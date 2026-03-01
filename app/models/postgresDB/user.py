@@ -18,3 +18,5 @@ class User(Base, table=True):
     user_string: GString = Relationship(back_populates="users")
     user_level: Level = Relationship(back_populates="users")
     user_guitar: Guitar = Relationship(back_populates="users")
+
+    records: list["User"] = Relationship(back_populates="user_records")
