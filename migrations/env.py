@@ -11,6 +11,7 @@ from app.models.postgresDB.user import User
 from app.models.postgresDB.guitar import Guitar
 from app.models.postgresDB.g_string import GString
 from app.models.postgresDB.category import Category
+from app.models.postgresDB.user_record import UserRecord
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

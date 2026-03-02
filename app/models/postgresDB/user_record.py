@@ -1,7 +1,10 @@
 from sqlmodel import Field, Relationship
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from app.models.postgresDB.base import Base
 from app.models.postgresDB.user import User
+
+if TYPE_CHECKING:
+    from app.models.postgresDB.user import User
 
 class UserRecord(Base, table=True):
     name: str

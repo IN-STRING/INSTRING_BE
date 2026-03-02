@@ -8,8 +8,9 @@ class RecordCreateRequest(BaseModel):
     file_url: str
     spec_img_url: str
 
-class RecordGetRequest(RecordCreateRequest):
+class RecordGetRequest(BaseModel):
     id: int
+    name: str
 
 class SearchRecords(BaseModel):
     records: list[RecordGetRequest]

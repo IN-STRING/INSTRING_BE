@@ -27,5 +27,5 @@ class TimestampMixin(SQLModel):
 class Base(TimestampMixin):
     id: Optional[int] = Field(default=None, primary_key=True)
 
-# uv run alembic revision --autogenerate -m "re_user_11"
+# uv run alembic revision --autogenerate -m "re_user_1"
 # uv run alembic upgrade head

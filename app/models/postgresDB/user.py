@@ -2,8 +2,12 @@ from app.models.postgresDB.guitar import Guitar
 from app.models.postgresDB.level import Level
 from app.models.postgresDB.base import Base
 from app.models.postgresDB.g_string import GString
+#from app.models.postgresDB.user_record import UserRecord
 from sqlmodel import Field, Relationship
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.postgresDB.user_record import UserRecord
 
 class User(Base, table=True):
     email: str = Field(unique=True, index=True)
