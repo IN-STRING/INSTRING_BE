@@ -4,11 +4,14 @@ from app.api.v1.endpoints.user_info.change_info import change_router
 from app.api.v1.endpoints.user_info.modal import model_router
 from app.api.v1.endpoints.infos.info_api import info_router
 from app.api.v1.endpoints.device.socket.sensor_socket_api import socket_router
+from app.api.v1.endpoints.device.socket.record_socket_api import record_socket_router
 from app.api.v1.endpoints.user_info.user_info_api import user_info_router
 from app.api.v1.endpoints.device.device_connection import device_router
 from app.api.v1.endpoints.song_info.song_page import song_router
 from app.api.v1.endpoints.search.search_category import search_category_router
 from app.api.v1.endpoints.search.text_search import text_search_router
+from app.api.v1.endpoints.record.record_create import create_record_router
+from app.api.v1.endpoints.record.record_info import record_info_router
 
 api_router = APIRouter()
 
@@ -22,3 +25,6 @@ api_router.include_router(device_router, prefix="/device")
 api_router.include_router(song_router, prefix="/song")
 api_router.include_router(search_category_router, prefix="/search_category")
 api_router.include_router(text_search_router, prefix="/text_search")
+api_router.include_router(record_info_router, prefix="/record_info")
+api_router.include_router(create_record_router, prefix="/create_record")
+api_router.include_router(record_socket_router, prefix="/record_socket")

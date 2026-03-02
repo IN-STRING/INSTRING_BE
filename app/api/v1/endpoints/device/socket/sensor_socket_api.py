@@ -2,7 +2,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.api.depends import SessionDep
 from app.models.postgresDB.user import User
 from app.core.security.jwt_token import jwt_manager
-from app.services.ws.sensor_socket.temperature_humidity_socket import manager
+from app.services.ws.connect_socket import manager
 
 socket_router = APIRouter()
 

@@ -5,9 +5,9 @@ from app.models.postgresDB.user import User
 
 class UserRecord(Base, table=True):
     name: str
-    style: str
-    chord: str
-    speed: str
+    style: Optional[str] = Field(default=None)
+    chord: Optional[str] = Field(default=None)
+    speed: Optional[str] = Field(default=None)
     spec_img_url: str
     file_url: str
 
