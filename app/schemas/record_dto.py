@@ -14,3 +14,6 @@ class RecordGetRequest(BaseModel):
 
 class SearchRecords(BaseModel):
     records: list[RecordGetRequest]
+
+class ChangeRecord(BaseModel):
+    name: str

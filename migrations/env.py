@@ -12,6 +12,8 @@ from app.models.postgresDB.guitar import Guitar
 from app.models.postgresDB.g_string import GString
 from app.models.postgresDB.category import Category
 from app.models.postgresDB.user_record import UserRecord
+# alembic revision -m "add_record_fts_and_trgm3"
+# alembic upgrade head
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

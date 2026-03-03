@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
 from typing import Annotated
 from app.api.depends import SessionDep
 from app.core.security.jwt_token import jwt_manager

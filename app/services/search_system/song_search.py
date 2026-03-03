@@ -31,5 +31,5 @@ def search_songs(session: Session, query: str, limit: int = 20):
                    LIMIT :limit
                """)
 
-    results = session.exec(sql, params={"query": query, "limit": limit})
-    return results.all()
+    results = session.exec(sql, params={"query": query, "limit": limit}).all()
+    return results

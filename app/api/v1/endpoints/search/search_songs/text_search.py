@@ -1,6 +1,5 @@
-# routers/song.py
 from fastapi import APIRouter, Query
-from app.services.search_system.fts_pg_tgrm_search import search_songs
+from app.services.search_system.song_search import search_songs
 from app.api.depends import SessionDep
 from app.schemas.song_dto import SongS
 

@@ -50,7 +50,7 @@ async def check_otp(data: VerifyDTO):
     return TempToken(temp_token=temp_token, token_type="bearer")
 
 
-@change_router.post("/change_password")
+@change_router.patch("/change_password")
 async def change_password(session: SessionDep, password: Password, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
     stmt = select(User).where(User.email == userdata["sub"])
     user = session.exec(stmt).first()
