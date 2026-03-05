@@ -59,7 +59,6 @@ async def login(session: SessionDep, userdata: UserJoinDTO ):
         if not result:
             raise HTTPException(status_code=404, detail="인증되지 않은 이메일 입니다")
 
-        # hashed_password = hash_password(userdata.password)
         hashed_password = auth_manager.hash_password(userdata.password)
         dict_user = userdata.model_dump()
         dict_user["password"] = hashed_password

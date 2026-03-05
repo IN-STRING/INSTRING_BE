@@ -1,7 +1,7 @@
 from sqlalchemy import text
 from sqlmodel import Session
 
-def search_records(session: Session, query: str, user_id: int = None, limit: int = 20):
+def search_records(session: Session, query: str, user_id: int, limit: int = 20):
     sql = text("""
         SELECT 
             id, name, style, chord, speed, user_id,

@@ -15,10 +15,13 @@ def search(
 ):
     user_id = userdata["sub"]
     results = search_records(session, q, user_id, limit)
-    return [
-        {
-            "id": r.id,
-            "name": r.name,
-        }
-        for r in results
-    ]
+    return {
+        "user_record":
+            [
+                {
+                    "id": r.id,
+                    "name": r.name,
+                }
+                for r in results
+        ]
+    }
