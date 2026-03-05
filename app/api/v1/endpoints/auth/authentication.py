@@ -133,7 +133,7 @@ async def logout(access_token: Annotated[str, Depends(jwt_manager.oauth2_scheme)
     return {"message": "로그아웃 성공"}
 
 
-@auth_router.delete("/userinfo")
+@auth_router.delete("/user_delete")
 async def withdraw(
     session: SessionDep,
     userdata: Annotated[dict, Depends(jwt_manager.check_token)]

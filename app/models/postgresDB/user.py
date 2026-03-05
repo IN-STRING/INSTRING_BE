@@ -3,7 +3,7 @@ from app.models.postgresDB.level import Level
 from app.models.postgresDB.base import Base
 from app.models.postgresDB.g_string import GString
 #from app.models.postgresDB.user_record import UserRecord
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, Column, Integer, ForeignKey
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -23,4 +23,10 @@ class User(Base, table=True):
     user_level: Level = Relationship(back_populates="users")
     user_guitar: Guitar = Relationship(back_populates="users")
 
-    records: list["UserRecord"] = Relationship(back_populates="user_records")
+    records: list["UserRecord"] = Relationship(
+        back_populates="user_records",
+        sa_relationship_kwargs={
+            "cascade": "all, delete-orphan",
+            "passive_deletes": True,
+        },
+    )
