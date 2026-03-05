@@ -131,3 +131,15 @@ async def logout(access_token: Annotated[str, Depends(jwt_manager.oauth2_scheme)
 
     redis_client.delete(f"refresh:{user_id}")
     return {"message": "로그아웃 성공"}
+
+
+@auth_router.delete("/userinfo")
+async def withdraw(
+    session: SessionDep,
+    userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+):
+    user = session.get(User, userdata["sub"])
+
+    session.delete(user)
+    session.commit()
+    return {"message": "success"}
