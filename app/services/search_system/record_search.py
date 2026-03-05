@@ -1,4 +1,3 @@
-# services/search.py
 from sqlalchemy import text
 from sqlmodel import Session
 

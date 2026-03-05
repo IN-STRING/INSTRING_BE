@@ -63,3 +63,31 @@ async def change_password(session: SessionDep, password: Password, userdata: Ann
     session.add(user)
     session.commit()
     return {"message": "변경 성공"}
+
+
+@change_router.patch("/change_level")
+async def change_level(
+        session: SessionDep,
+        level_id: int,
+        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+):
+    user = session.get(User, userdata["sub"])
+    user.level_id = level_id
+
+    session.add(user)
+    session.commit()
+    return {"message": "success"}
+
+
+@change_router.patch("/change_string")
+async def change_level(
+        session: SessionDep,
+        string_id: int,
+        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+):
+    user = session.get(User, userdata["sub"])
+    user.string_id = string_id
+
+    session.add(user)
+    session.commit()
+    return {"message": "success"}
