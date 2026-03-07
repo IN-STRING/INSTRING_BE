@@ -3,7 +3,7 @@ import json
 import uuid
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.services.ws.connect_socket import manager
-from app.core.s3.connect_s3 import upload_to_s3
+from app.services.s3_upload.s3_upload_data import upload_s3
 from app.services.audio.audio_img import create_audio_img
 
 record_socket_router = APIRouter()
@@ -37,13 +37,10 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                         file.close()
                         file = None
 
-                        s3_key = f"records/{device_id}/{unique_id}_{file_name}"
-                        file_url = upload_to_s3(file_path, s3_key, "audio/wav")
-
+                        file_url = upload_s3.upload_record_song(file_path, f"{device_id}_{unique_id}_{file_name}")
                         img_path = file_path.replace(".wav", ".png")
                         create_audio_img(file_path, img_path)
-                        img_s3_key = s3_key.replace(".wav", ".png")
-                        spec_img_url = upload_to_s3(img_path, img_s3_key, "image/png")
+                        spec_img_url = upload_s3.upload_record_image(img_path, f"{device_id}_{unique_id}_{file_name.replace('.wav', '.png')}")
 
                         await manager.send_to_front(device_id, json.dumps({
                             "type": "record_complete",
