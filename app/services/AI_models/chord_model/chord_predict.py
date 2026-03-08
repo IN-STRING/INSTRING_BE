@@ -98,3 +98,5 @@ Cpredictor = ChordPredictor(
     bucket=settings.S3_BUCKET_NAME,
     key="model_pts/best_chord_model.pth"
 )
+
+# print(Cpredictor.predict_result("버스커 버스커(Busker Busker) - 벚꽃 엔딩 [가사_Lyrics].mp3"))

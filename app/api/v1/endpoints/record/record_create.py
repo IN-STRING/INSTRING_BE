@@ -5,6 +5,7 @@ from app.core.security.jwt_token import jwt_manager
 from app.models.postgresDB.user_record import UserRecord
 from app.schemas.record_dto import RecordCreateRequest
 from app.services.AI_models.chord_model.chord_predict import Cpredictor
+from app.services.AI_models.SAT_model.SAT_predict import FSpredictor
 
 create_record_router = APIRouter()
 
@@ -15,12 +16,13 @@ async def create_record(
         session: SessionDep
 ):
     song_chord = Cpredictor.predict_result(request.file_url)
+    song_style_speed = FSpredictor.analyze_guitar_performance(request.file_url)
 
     record = UserRecord(
         name=request.name,
-        style=request.style,
+        style=song_style_speed.style,
         chord=song_chord,
-        speed=request.speed,
+        speed=song_style_speed.tempo,
         file_url=request.file_url,
         spec_img_url=request.spec_img_url,
         user_id=userdata["sub"],
