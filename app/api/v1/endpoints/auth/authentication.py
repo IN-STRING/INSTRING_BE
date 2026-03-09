@@ -55,9 +55,9 @@ async def check_otp(data: VerifyDTO):
 @auth_router.post("/join")
 async def login(session: SessionDep, userdata: UserJoinDTO ):
     try:
-        result = redis_client.get(f"verified:{userdata.email}")
-        if not result:
-            raise HTTPException(status_code=404, detail="인증되지 않은 이메일 입니다")
+        # result = redis_client.get(f"verified:{userdata.email}")
+        # if not result:
+        #     raise HTTPException(status_code=404, detail="인증되지 않은 이메일 입니다")
 
         hashed_password = auth_manager.hash_password(userdata.password)
         dict_user = userdata.model_dump()

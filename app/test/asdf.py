@@ -8,6 +8,7 @@ from app.models.postgresDB.guitar import Guitar
 from app.models.postgresDB.g_string import GString
 from app.models.postgresDB.category import Category
 from app.models.postgresDB.level import Level  # 마지막에
+from app.models.postgresDB.user_record import UserRecord
 app = FastAPI()
 
 class WS(SQLModel):
@@ -77,7 +78,7 @@ def create_song(
         session: SessionDep
 ):
     # Song 생성 (category_ids 제외)
-    song_data = data.model_dump(exclude={"category_ids"})
+    song_data = data.model_dump(exclude={"category_ids","level_id"})
     song = Song(**song_data)
 
     # 카테고리 연결
@@ -86,6 +87,10 @@ def create_song(
             select(Category).where(Category.id.in_(data.category_ids))
         ).all()
         song.categories = categories
+
+    if data.level_id:
+        levels = session.get(Level, data.level_id)
+        song.level_id = levels.id
 
     session.add(song)
     session.commit()

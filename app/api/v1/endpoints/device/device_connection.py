@@ -27,14 +27,13 @@ async def register_device(
 ):
     user = session.get(User, userdata["sub"])
 
-    if user.machinery_id:
+    if user.device_id:
         raise HTTPException(400, "이미 등록된 기기입니다")
 
-    device = User(
-        device_id=body.device_id,
-        is_device=True,
-    )
-    session.add(device)
+    user.device_id = body.device_id
+    user.is_device = True
+
+    session.add(user)
     session.commit()
 
     return {"message": "기기 등록 완료"}
