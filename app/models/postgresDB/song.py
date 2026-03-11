@@ -1,4 +1,4 @@
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, Column, Integer, ForeignKey
 from typing import Optional, TYPE_CHECKING
 from app.models.postgresDB.base import Base
 from app.models.postgresDB.SongCategory_link import SongCategoryLink
@@ -16,7 +16,16 @@ class Song(Base, table=True):
     artist: str
     style: str
     speed: str
-    level_id: Optional[int] = Field(default=None, foreign_key="level.id", index=True)
+    # level_id: Optional[int] = Field(default=None, foreign_key="level.id", index=True)
+    level_id: Optional[int] = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey("level.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+            default=None
+        )
+    )
     chord: str
     tube_url: str
     file_url: str
