@@ -9,13 +9,13 @@ from app.schemas.device_register import DeviceRegisterRequest
 device_router = APIRouter()
 
 
-@device_router.get("/device/check")
-async def check_device(
-        session: SessionDep,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
-):
-    user = session.get(User, userdata["sub"])
-    return user.is_device
+# @device_router.get("/device/check")
+# async def check_device(
+#         session: SessionDep,
+#         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+# ):
+#     user = session.get(User, userdata["sub"])
+#     return user.is_device
 
 
 # 프론트에서 여기로 접근
