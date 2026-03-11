@@ -29,3 +29,5 @@ class Base(TimestampMixin):
 
 # uv run alembic revision --autogenerate -m "song_level_cascaed"
 # uv run alembic upgrade head
+
+#uv run alembic revision -m "restore_user_record_search_vector"
