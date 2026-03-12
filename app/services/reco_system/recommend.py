@@ -30,19 +30,22 @@ class SongRecommender:
 
 
     def recommend(self, session: Session, user_level: int, user_history: list[int],
-                  user_clicks: list[SongUserClickedLink], limit: int = 10):
+                  user_clicks: list[SongUserClickedLink], limit: int = 10) -> list[dict]:
 
-        history_songs = self.song_repo.get_song_by_ids(user_history)
-        preference = self._build_preference(user_clicks)
+        history_songs = self.song_repo.get_song_by_ids(session, user_history)
+        #print("\n와우1",history_songs)
+        preference = self._build_preference(session, user_clicks)
+        #print("\n와우2",preference)
         popularity = self._build_popularity(session)
+        #print("\n와우3",popularity)
         level_of_songs = self._get_song_by_level(session, user_level, user_history)
-
+        #print("\n와우4",level_of_songs)
         score = []
         for song, level_weight in level_of_songs:
             base_score = self._score(song, history_songs, preference, popularity)
             final_score = base_score * level_weight
             score.append((song, final_score))
-
+        #print("\n와우5",score)
         score.sort(key=lambda x: x[1], reverse=True)
 
         return [
@@ -73,7 +76,7 @@ class SongRecommender:
         played_chords = set()
         for s in history_songs:
             played_chords.update(s.chord)
-        new_chords = set(song.chords) - played_chords
+        new_chords = set(song.chord) - played_chords
         score += len(new_chords) * self.weight_chord
 
         if history_songs:
@@ -82,8 +85,8 @@ class SongRecommender:
             score += similarity * self.weight_similarity
 
         pref_score = (
-              preference["techniques"].get(song.technique, 0)
-              + preference["tempos"].get(song.tempo, 0)
+              preference["techniques"].get(song.style, 0)
+              + preference["tempos"].get(song.speed, 0)
               + preference["artists"].get(song.artist, 0)
         ) / 3
         score += pref_score * self.weight_preference
@@ -94,12 +97,12 @@ class SongRecommender:
         return score
 
 
-    def _build_preference(self, user_clicks: list[SongUserClickedLink]):
+    def _build_preference(self, session: Session ,user_clicks: list[SongUserClickedLink]):
         if not user_clicks:
             return {"techniques": {}, "tempos": {}, "artists": {}}
 
         clicked_songs = self.song_repo.get_song_by_ids(
-            [song.song_id for song in user_clicks]
+            session, [song.song_id for song in user_clicks]
         )
         clicked_map = {song.song_id: song.click_count for song in user_clicks}
 
@@ -108,14 +111,14 @@ class SongRecommender:
         artist_counts = Counter()
 
         for song in clicked_songs:
-            count = clicked_map.get(song.song_id, 1)
+            count = clicked_map.get(song.id, 1)
             artist_counts[song.artist] += count
             tempo_counts[song.speed] += count
             technique_counts[song.style] += count
 
         return {
             "techniques": self._normalize(technique_counts),
-            "tempo": self._normalize(tempo_counts),
+            "tempos": self._normalize(tempo_counts),
             "artists": self._normalize(artist_counts),
         }
 
@@ -138,20 +141,50 @@ class SongRecommender:
         song_level_weighted_list = []
         for level_diff, weight in self.LEVEL_WEIGHTS.items():
             level = user_level + level_diff
-            if not 11 <= level <= 15: # db 값 적제 문제 때문에 pk값 증가 되서 저래된겨
+            #print("레벨 와우",level)
+            if not (11 <= level <= 15): # db 값 적제 문제 때문에 pk값 증가 되서 저래된겨
                 continue
 
             songs = self.song_repo.get_songs_by_level(session, level)
+            #print("check 와우", songs)
             for song in songs:
                 if song.id not in user_history:
                     song_level_weighted_list.append((song, weight))
 
+        if not song_level_weighted_list:
+            song_level_weighted_list = self._fallback_search(session, user_level, user_history)
+        #print(song_level_weighted_list)
+
         return song_level_weighted_list
+
+
+    def _fallback_search(self, session: Session, user_level: int, user_history: list[int]):
+        fallback = []
+
+        for diff in [2, -2, 3, -3, 4, -4]:
+            level = user_level + diff
+
+            if not (11 <= level <= 15):
+                continue
+
+            # 멀어질수록 가중치 낮게
+            weight = max(0.1, 1.0 - abs(diff) * 0.2)
+
+            songs = self.song_repo.get_songs_by_level(session, level)
+            #print("ㅅㅂ", diff, songs)
+            for song in songs:
+                if song.id not in user_history:
+                    fallback.append((song, weight))
+
+            if len(fallback) >= 12:
+                break
+
+        return fallback
 
 
     @staticmethod
     def _chord_similarity(song_a: Song, song_b: Song):
-        if not song_a.chords or not song_b.chords:
+        if not song_a.chord or not song_b.chord:
             return 0.0
 
         chord_a = set(zip(song_a.chord, song_a.chord[1:]))

@@ -3,8 +3,6 @@ from app.models.postgresDB.song import Song
 from app.models.postgresDB.song_user_clicked_link import SongUserClickedLink
 
 class SongRepository:
-    def __init__(self):
-        pass
 
     @staticmethod
     def get_song_by_ids(session: Session, ids: list[int]):
@@ -13,7 +11,7 @@ class SongRepository:
 
     @staticmethod
     def get_songs_by_level(session: Session, level_id: int):
-        result = session.exec(select(Song).where(Song.level.id == level_id)).all()
+        result = session.exec(select(Song).where(Song.level_id == level_id)).all()
         return result
 
     @staticmethod
@@ -25,7 +23,7 @@ class SongRepository:
         for song in result:
             only_ids.append(song.song_id)
 
-        return result, only_ids
+        return only_ids, result
 
     @staticmethod
     def get_all_click_counts(session: Session):
@@ -36,7 +34,7 @@ class SongRepository:
                 each_songs_total_count[song.song_id] += song.click_count
             else:
                 each_songs_total_count[song.song_id] = song.click_count
-        return result
+        return each_songs_total_count
 
 
 song_repository = SongRepository()

@@ -15,6 +15,7 @@ from app.api.v1.endpoints.record.record_info import record_info_router
 from app.api.v1.endpoints.record.record_change_info import record_change_info_router
 from app.api.v1.endpoints.search.search_records.record_name_search import search_records_router
 from app.api.v1.endpoints.user_info.user_song_click import user_song_click_router
+from app.api.v1.endpoints.recommend.song_recommendation import song_recommendation_router
 
 api_router = APIRouter()
 
@@ -34,3 +35,4 @@ api_router.include_router(record_socket_router, prefix="/record_socket")
 api_router.include_router(record_change_info_router, prefix="/record_change_info")
 api_router.include_router(search_records_router, prefix="/record_search")
 api_router.include_router(user_song_click_router, prefix="/user_song_click")
+api_router.include_router(song_recommendation_router, prefix="/song_recommendation")
