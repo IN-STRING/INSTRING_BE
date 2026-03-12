@@ -10,7 +10,7 @@ from app.services.AI_models.SAT_model.SAT import CNNLSTM
 
 class FingerstylePredictor:
     CLASS_NAMES = ["arpeggio", "fingerstyle", "stroke"]
-    TEMPO_NAMES = ["slow", "mid", "fast"]
+    TEMPO_NAMES = ["slow", "middle", "fast"]
 
     def __init__(self, bucket, key, device=None):
         self.device = torch.device(

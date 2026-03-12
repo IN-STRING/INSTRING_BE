@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from typing import Annotated
 from sqlmodel import select
 from app.api.depends import SessionDep
+from app.models.postgresDB.song import Song
 from app.models.postgresDB.user import User
 from app.models.postgresDB.song_user_clicked_link import SongUserClickedLink
 from app.core.security.jwt_token import jwt_manager
@@ -31,3 +32,13 @@ async def user_song_click(
     return {"message": "클릭 기록 추가됨"}
 
 
+# @user_song_click_router.get("/user/song/click")
+# async def user_song_click_get(session: SessionDep, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
+#     only_ids = []
+#     stmt = select(SongUserClickedLink).where(SongUserClickedLink.user_id == userdata["sub"])
+#     result = session.exec(stmt).all()
+#
+#     for song in result:
+#         only_ids.append(song.song_id)
+#
+#     return result, only_ids
