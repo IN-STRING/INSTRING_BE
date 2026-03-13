@@ -131,6 +131,9 @@ class SongRecommender:
 
         max_clicks = max(all_clicks.values())
 
+        if max_clicks <= 0:
+            return {song_id: 0.0 for song_id in all_clicks}
+
         return {
             song_id: count / max_clicks
             for song_id, count in all_clicks.items()
@@ -204,6 +207,8 @@ class SongRecommender:
         if not counter:
             return {}
         max_val = max(counter.values())
+        if max_val <= 0:
+            return {k: 0.0 for k in counter}
         return {k: v / max_val for k, v in counter.items()}
 
 
