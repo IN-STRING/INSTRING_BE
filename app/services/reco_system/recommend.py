@@ -40,20 +40,20 @@ class SongRecommender:
         #print("\n와우3",popularity)
         level_of_songs = self._get_song_by_level(session, user_level, user_history)
         #print("\n와우4",level_of_songs)
-        score = []
+        scored_songs = []
         for song, level_weight in level_of_songs:
             base_score = self._score(song, history_songs, preference, popularity)
             final_score = base_score * level_weight
-            score.append((song, final_score))
+            scored_songs .append((song, final_score))
         #print("\n와우5",score)
-        score.sort(key=lambda x: x[1], reverse=True)
+        scored_songs .sort(key=lambda x: x[1], reverse=True)
 
         return [
             {
                 "song": song,
-                "score": round(score, 2),
+                "score": round(score_song, 2),
             }
-            for song, score in score[:limit]
+            for song, score_song in scored_songs [:limit]
         ]
 
 

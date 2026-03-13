@@ -17,13 +17,12 @@ class Song(Base, table=True):
     style: str
     speed: str
     # level_id: Optional[int] = Field(default=None, foreign_key="level.id", index=True)
-    level_id: Optional[int] = Field(
+    level_id: int = Field(
         sa_column=Column(
             Integer,
             ForeignKey("level.id", ondelete="CASCADE"),
             nullable=False,
             index=True,
-            default=None
         )
     )
     chord: str
