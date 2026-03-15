@@ -1,4 +1,5 @@
-from sqlmodel import Field, Relationship, Column, Integer, ForeignKey
+from sqlmodel import Field, Relationship, Column, Integer, ForeignKey, Computed
+from sqlalchemy.dialects.postgresql import TSVECTOR
 from typing import Optional, TYPE_CHECKING
 from app.models.postgresDB.base import Base
 from app.models.postgresDB.SongCategory_link import SongCategoryLink
@@ -33,6 +34,18 @@ class Song(Base, table=True):
     song_level: Optional[Level] = Relationship(back_populates="songs")
 
     clicked_users: list["User"] = Relationship(back_populates="clicked_songs", link_model=SongUserClickedLink)
+
+    search_vector: Optional[str] = Field(
+        default=None,
+        sa_column=Column(
+            TSVECTOR,
+            Computed(
+                "setweight(to_tsvector('simple', coalesce(name, '')), 'A') || "
+                "setweight(to_tsvector('simple', coalesce(artist, '')), 'B')",
+                persisted=True
+            )
+        )
+    )
 
 # - 특징? 장르 (bpm 그런거임) (박하원) O 일대다
 # - 작곡가 등 O 일대다
