@@ -1,4 +1,5 @@
-from sqlmodel import Field, Relationship, Column, Integer, ForeignKey
+from sqlmodel import Field, Relationship, Column, Integer, ForeignKey, Computed
+from sqlalchemy.dialects.postgresql import TSVECTOR
 from typing import Optional, TYPE_CHECKING
 from app.models.postgresDB.base import Base
 from app.models.postgresDB.user import User
@@ -25,3 +26,14 @@ class UserRecord(Base, table=True):
         )
     )
     user_records: User = Relationship(back_populates="records")
+
+    search_vector: Optional[str] = Field(
+        default=None,
+        sa_column=Column(
+            TSVECTOR,
+            Computed(
+                "to_tsvector('simple', coalesce(name, ''))",
+                persisted=True
+            )
+        )
+    )
