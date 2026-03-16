@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: str
     DB_NAME: str
+    REDIS_HOST: str
 
     KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
