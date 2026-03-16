@@ -17,5 +17,5 @@ async def my_level(session: SessionDep, userdata: Annotated[dict, Depends(jwt_ma
 @user_info_router.get("/my_gstring")
 async def my_gstring(session: SessionDep, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
     user = session.get(User, userdata["sub"])
-    result = user.user_gstring.id
+    result = user.user_string.id
     return {"gstring": result}

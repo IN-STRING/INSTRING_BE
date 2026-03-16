@@ -9,6 +9,8 @@ from app.core.config import fm, settings
 from app.schemas.auth_dto import Email, Password, VerifyDTO, TempToken
 from app.models.redisDB.redis_set import redis_client
 from app.models.postgresDB.user import User
+from app.models.postgresDB.g_string import GString
+from app.models.postgresDB.level import Level
 from app.core.security.auth_mange import auth_manager
 from app.core.security.jwt_token import jwt_manager
 
@@ -71,6 +73,9 @@ async def change_level(
         level_id: int,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
+    level = session.get(Level, level_id)
+    if not level:
+        raise HTTPException(status_code=404, detail="level not found")
     user = session.get(User, userdata["sub"])
     user.level_id = level_id
 
@@ -85,6 +90,9 @@ async def change_level(
         string_id: int,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
+    string = session.get(GString, string_id)
+    if not string:
+        raise HTTPException(status_code=404, detail="string not found")
     user = session.get(User, userdata["sub"])
     user.string_id = string_id
 

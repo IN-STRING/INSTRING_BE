@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int
     REFRESH_TOKEN_EXPIRE_SECONDS: int
 
+    STRING_MAX_DAY: int
+
     MAIL_USERNAME: str
     MAIL_PASSWORD: SecretStr
     MAIL_FROM: EmailStr
