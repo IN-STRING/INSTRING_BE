@@ -24,7 +24,7 @@ async def socket_front(session: SessionDep, websocket: WebSocket):
 @socket_router.websocket("/ws/sensor/device/{device_id}")
 async def socket_websocket(websocket: WebSocket, device_id: str):
 
-    await websocket.accept()
+    await manager.connect_device(device_id, websocket)
 
     try:
         while True:
@@ -32,4 +32,4 @@ async def socket_websocket(websocket: WebSocket, device_id: str):
             await manager.send_to_front(device_id, raw)
 
     except WebSocketDisconnect:
-        pass
+        manager.disconnect_device(device_id)

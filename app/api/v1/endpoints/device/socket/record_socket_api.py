@@ -13,7 +13,7 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 
 @record_socket_router.websocket("/ws/record/device/{device_id}")
 async def ws_sensor_device(websocket: WebSocket, device_id: str):
-    await websocket.accept()
+    await manager.connect_device(device_id, websocket)
 
     file = None
     file_path = None
@@ -56,5 +56,6 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                     file.write(message["bytes"])
 
     except WebSocketDisconnect:
+        manager.disconnect_device(device_id)
         if file:
             file.close()

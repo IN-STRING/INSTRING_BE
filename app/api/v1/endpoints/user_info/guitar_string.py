@@ -26,10 +26,10 @@ def get_string_status(
         message = "줄 상태가 좋습니다"
         level = "good"
     elif progress < 0.5:
-        message = "아직 괜찮습니다"
+        message = "슬슬 교체를 고려해보세요"
         level = "normal"
     elif progress < 0.75:
-        message = "슬슬 교체를 고려해보세요"
+        message = "줄을 교체 하시는 것이 좋습니다!"
         level = "warning"
     else:
         message = "악기줄이 너무 오래 되었습니다!!"
