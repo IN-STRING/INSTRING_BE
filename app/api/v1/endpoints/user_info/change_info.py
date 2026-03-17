@@ -53,13 +53,17 @@ async def check_otp(data: VerifyDTO):
 
 
 @change_router.patch("/change_password")
-async def change_password(session: SessionDep, password: Password, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
+async def change_password(
+        session: SessionDep,
+        password: Password,
+        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+):
+    if userdata["type"] != "temp":
+        raise HTTPException(status_code=400, detail="이메일 인증 해라")
     stmt = select(User).where(User.email == userdata["sub"])
     user = session.exec(stmt).first()
     if not user:
         raise HTTPException(status_code=404, detail="user not found")
-    if userdata["type"] != "temp":
-        raise HTTPException(status_code=400, detail="이메일 인증 해라")
 
     user.password = auth_manager.hash_password(password.password)
     session.add(user)
