@@ -4,7 +4,6 @@ from typing import Annotated
 from app.core.security.jwt_token import jwt_manager
 from app.api.depends import SessionDep
 from app.schemas.modal_dto import ModalDTO
-from app.models.postgresDB.guitar import Guitar
 from app.models.postgresDB.level import Level
 from app.models.postgresDB.g_string import GString
 from app.models.postgresDB.user import User
@@ -26,8 +25,7 @@ async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotate
 
     result = session.exec(
         (
-            select(Guitar, GString, Level)
-            .where(Guitar.name == modaldata.guitars)
+            select(GString, Level)
             .where(GString.name == modaldata.strings)
             .where(Level.name == modaldata.levels)
         )
@@ -36,16 +34,15 @@ async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotate
     if not result:
         raise HTTPException(
             status_code=404,
-            detail=f"선택한 정보를 DB에서 찾을 수 없습니다. (입력값: {modaldata.guitars}, {modaldata.strings}, {modaldata.levels})"
+            detail=f"선택한 정보를 DB에서 찾을 수 없습니다. (입력값: {modaldata.strings}, {modaldata.levels})"
         )
 
-    g, gs, lv = result
+    gs, lv = result
 
-    user.guitar_id = g.id
     user.level_id = lv.id
     user.string_id = gs.id
     user.modal = modaldata.modal
-    user.machinery = modaldata.machinery
+    user.is_device = modaldata.device
 
     session.add(user)
     session.commit()

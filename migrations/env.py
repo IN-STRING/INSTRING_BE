@@ -8,7 +8,6 @@ from app.models.postgresDB.base import Base
 from app.models.postgresDB.song import Song
 from app.models.postgresDB.level import Level
 from app.models.postgresDB.user import User
-from app.models.postgresDB.guitar import Guitar
 from app.models.postgresDB.g_string import GString
 from app.models.postgresDB.category import Category
 from app.models.postgresDB.user_record import UserRecord
@@ -37,7 +36,6 @@ target_metadata = Base.metadata
 # ... etc.
 
 def include_object(object, name, type_, reflected, compare_to):
-    # autogenerate에서 무시할 컬럼들
     ignore_columns = ["search_vector"]
 
     if type_ == "column" and name in ignore_columns:
@@ -71,23 +69,20 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+    from urllib.parse import quote_plus
+    from app.core.config import settings
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
+    db_url = f"postgresql://{settings.DB_USER}:{quote_plus(settings.DB_PASSWORD)}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 
-    """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    from sqlalchemy import create_engine
+    connectable = create_engine(db_url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            include_object=include_object,
         )
-
         with context.begin_transaction():
             context.run_migrations()
 
@@ -97,6 +92,5 @@ if context.is_offline_mode():
 else:
     run_migrations_online()
 
-# 실행 명령어
 # uv run alembic revision --autogenerate -m "Initial migration"
 # uv run alembic upgrade head

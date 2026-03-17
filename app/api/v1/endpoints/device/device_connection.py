@@ -30,7 +30,7 @@ async def register_device(
     user = session.get(User, userdata["sub"])
 
     if user.device_id:
-        raise HTTPException(400, "이미 등록된 기기입니다")
+        raise HTTPException(400, "이미 등록되어 있습니다")
 
     if not manager.is_device_online(body.device_id):
         raise HTTPException(404, "기기를 찾을 수 없습니다")

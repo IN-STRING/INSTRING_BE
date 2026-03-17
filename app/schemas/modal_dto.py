@@ -5,4 +5,3 @@ class ModalDTO(BaseModel):
     device: bool
     strings: str
     levels: str
-    guitars: str
