@@ -49,3 +49,16 @@ async def register_device(
     session.commit()
 
     return {"message": "기기 등록 완료"}
+
+
+@device_router.patch("/device/unregister")
+async def unregister_device(
+    session: SessionDep,
+    userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+):
+    user = session.get(User, userdata["sub"])
+    user.device_id = None
+
+    session.add(user)
+    session.commit()
+    return {"message": "기기 연결 해제"}
