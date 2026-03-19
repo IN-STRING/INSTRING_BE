@@ -5,23 +5,9 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env.docker
+      - .env
     depends_on:
-      - db
       - redis
-
-  db:
-    image: postgres:18
-    container_name: intring-postgres
-    ports:
-      - "5434:5432"
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - db-data:/var/lib/postgresql
-    restart: unless-stopped
 
   redis:
     image: redis:7

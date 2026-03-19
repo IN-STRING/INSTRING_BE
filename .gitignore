@@ -3,4 +3,4 @@ venv/
 .idea/
 __pycache__/
 *.pyc
-.env.docker
+backup.sql
