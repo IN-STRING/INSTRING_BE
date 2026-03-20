@@ -4,3 +4,5 @@ venv/
 __pycache__/
 *.pyc
 backup.sql
+task-definition.json
+trust-policy.json
