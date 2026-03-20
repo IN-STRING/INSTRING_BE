@@ -1,0 +1,36 @@
+{
+  "family": "instring-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::198226511736:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "instring-server",
+      "image": "198226511736.dkr.ecr.us-east-1.amazonaws.com/instring-server:latest",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {"name": "DB_HOST", "value": "instring-database.codmeeuagj6s.us-east-1.rds.amazonaws.com"},
+        {"name": "DB_PORT", "value": "5432"},
+        {"name": "DB_USER", "value": "postgres"},
+        {"name": "DB_PASSWORD", "value": "12qweras!"},
+        {"name": "DB_NAME", "value": "Instring"},
+        {"name": "REDIS_HOST", "value": "localhost"}
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/instring",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
