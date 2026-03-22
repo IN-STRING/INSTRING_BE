@@ -13,8 +13,7 @@ def search(
     q: str = Query(..., min_length=1),
     limit: int = Query(20, le=50)
 ):
-    user_id = userdata["sub"]
-    results = search_records(session, q, user_id, limit)
+    results = search_records(session, q, userdata["sub"], limit)
     return {
         "user_record":
             [

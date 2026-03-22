@@ -3,20 +3,21 @@ from sqlmodel import select
 from fastapi_mail import MessageSchema
 from typing import Annotated
 from datetime import timedelta
-from app.api.depends import SessionDep
-from app.core.config import fm
-from app.schemas.auth_dto import Email, Password, VerifyDTO, TempToken
-from app.models.redisDB.redis_set import redis_client
-from app.models.postgresDB.user import User
-from app.models.postgresDB.g_string import GString
-from app.models.postgresDB.level import Level
-from app.core.security.auth_mange import auth_manager
-from app.core.security.jwt_token import jwt_manager
-
-change_router = APIRouter()
+from INewApp.core.dependencies import SessionDep
+from INewApp.core.security.auth_mange import auth_manager
+from INewApp.core.security.jwt_token import jwt_manager
+from INewApp.core.config import fm
+from INewApp.domains.users.schemas.user_schemas import Email, VerifyDTO, Password, TempToken
+from INewApp.core.redis_set import redis_client
+from INewApp.common.common_models.level import Level
+from INewApp.domains.users.models.user_table import User
+from INewApp.domains.users.models.user_string import GString
 
 
-@change_router.post("/change_info_check")
+patch_user_router = APIRouter()
+
+
+@patch_user_router.post("/change_info_check")
 async def check_email(session: SessionDep, email: Email):
     stmt = select(User).where(User.email == email.email)
     result = session.exec(stmt).first()
@@ -37,7 +38,7 @@ async def check_email(session: SessionDep, email: Email):
     return {"Message" : "인증 코드가 성공적으로 발송 되었습니다."}
 
 
-@change_router.post("/check_otp")
+@patch_user_router.post("/check_otp")
 async def check_otp(data: VerifyDTO):
     code = redis_client.get(f"change_verify:{data.email}")
     if not code:
@@ -51,7 +52,7 @@ async def check_otp(data: VerifyDTO):
     return TempToken(temp_token=temp_token, token_type="bearer")
 
 
-@change_router.patch("/change_password")
+@patch_user_router.patch("/change_password")
 async def change_password(
         session: SessionDep,
         password: Password,
@@ -70,7 +71,7 @@ async def change_password(
     return {"message": "변경 성공"}
 
 
-@change_router.patch("/change_level")
+@patch_user_router.patch("/change_level")
 async def change_level(
         session: SessionDep,
         level_id: int,
@@ -87,7 +88,7 @@ async def change_level(
     return {"message": "success"}
 
 
-@change_router.patch("/change_string")
+@patch_user_router.patch("/change_string")
 async def change_level(
         session: SessionDep,
         string_id: int,
@@ -100,5 +101,17 @@ async def change_level(
     user.string_id = string_id
 
     session.add(user)
+    session.commit()
+    return {"message": "success"}
+
+
+@patch_user_router.delete("/user_delete")
+async def withdraw(
+    session: SessionDep,
+    userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+):
+    user = session.get(User, userdata["sub"])
+
+    session.delete(user)
     session.commit()
     return {"message": "success"}

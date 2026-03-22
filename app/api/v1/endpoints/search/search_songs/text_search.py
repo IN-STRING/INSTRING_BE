@@ -12,7 +12,8 @@ def search(
     limit: int = Query(20, le=50),
 ):
     results = search_songs(session, q, limit)
-    songs = {"songs":
+    songs = {
+        "songs":
                  [
                      SongS(
                          id=r.id,
