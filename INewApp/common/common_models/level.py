@@ -3,8 +3,8 @@ from sqlmodel import Field, Relationship
 from INewApp.common.base_model import Base
 
 if TYPE_CHECKING:
-    from app.models.postgresDB.song import Song
-    from app.models.postgresDB.user import User
+    from INewApp.common.common_models.song import Song
+    from INewApp.domains.users.models.user_table import User
 
 class Level(Base, table=True):
     name: Optional[str] = Field(default=None)

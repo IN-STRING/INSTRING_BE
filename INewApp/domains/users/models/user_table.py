@@ -1,13 +1,13 @@
 from INewApp.common.common_models.level import Level
 from INewApp.common.base_model import Base
 from INewApp.domains.users.models.user_string import GString
-from app.models.postgresDB.song_user_clicked_link import SongUserClickedLink
+from INewApp.common.common_models.song_user_clicked_link import SongUserClickedLink
 from sqlmodel import Field, Relationship
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.models.postgresDB.song import Song
-    from app.models.postgresDB.user_record import UserRecord
+    from INewApp.domains.record.models.record_table import UserRecord
 
 class User(Base, table=True):
     email: str = Field(unique=True, index=True)

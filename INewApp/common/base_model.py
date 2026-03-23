@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, Field, func, DateTime
 from typing import Optional
 from datetime import datetime
-from INewApp.common.utils import  utcnow
+from INewApp.common.utils.db_time import utcnow
 
 
 class TimestampMixin(SQLModel):
