@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     DB_PORT: str
     DB_NAME: str
     REDIS_HOST: str
-    REDIS_PORT: str
+    REDIS_PORT: int
 
     KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
@@ -40,7 +40,8 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_file=env_path,
-        env_file_encoding="utf-8-sig"
+        env_file_encoding="utf-8-sig",
+        extra="ignore"
     )
 
 settings = Settings()

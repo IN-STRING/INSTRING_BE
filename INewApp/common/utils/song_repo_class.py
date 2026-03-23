@@ -1,5 +1,5 @@
 from sqlmodel import select, Session
-from INewApp.common.common_models.song import Song
+from INewApp.domains.song.models.song import Song
 from INewApp.common.common_models.song_user_clicked_link import SongUserClickedLink
 
 

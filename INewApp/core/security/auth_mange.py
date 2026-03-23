@@ -2,7 +2,7 @@ import string
 import secrets
 from pwdlib import PasswordHash
 from sqlmodel import Session, select
-from app.models.postgresDB.user import User
+from INewApp.domains.users.models.user_table import User
 
 class AuthManager:
     def __init__(self):

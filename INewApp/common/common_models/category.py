@@ -4,7 +4,7 @@ from INewApp.common.base_model import Base
 from INewApp.common.common_models.SongCategory_link import SongCategoryLink
 
 if TYPE_CHECKING:
-    from INewApp.common.common_models.song import Song
+    from INewApp.domains.song.models.song import Song
 
 class Category(Base, table=True):
     name: Optional[str] = Field(default=None)

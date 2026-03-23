@@ -4,8 +4,8 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, WebSocket
 from typing import Annotated
 from datetime import datetime, timedelta, timezone
-from app.models.redisDB.redis_set import redis_client
-from app.core.config import settings
+from INewApp.core.redis_set import redis_client
+from INewApp.core.config import settings
 
 
 class JWTManager:

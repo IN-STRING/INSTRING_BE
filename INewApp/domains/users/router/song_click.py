@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Annotated
 from sqlmodel import select
 from INewApp.core.dependencies import SessionDep
-from INewApp.common.common_models.song import Song
+from INewApp.domains.song.models.song import Song
 from INewApp.common.common_models.song_user_clicked_link import SongUserClickedLink
 from INewApp.core.security.jwt_token import jwt_manager
 
