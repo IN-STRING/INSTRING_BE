@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 from INewApp.core.dependencies import SessionDep
 from INewApp.common.common_models.category import Category
 from INewApp.domains.song.schemas.song_dto import SearchCategory
 from INewApp.domains.song.service.song_search import search_songs
 from INewApp.domains.song.schemas.song_dto import SongS
+from INewApp.core.error.exceptions import AppException
+from INewApp.core.error.exception_messages import ErrorCodes
 
 
 search_router = APIRouter()
@@ -13,7 +15,7 @@ search_router = APIRouter()
 async def get_ca(ca_id: int, session: SessionDep):
     result = session.get(Category, ca_id)
     if result is None:
-        raise HTTPException(status_code=404, detail="Category not found")
+        raise AppException(ErrorCodes.CATEGORY_NOT_FOUND)
     return result
 
 

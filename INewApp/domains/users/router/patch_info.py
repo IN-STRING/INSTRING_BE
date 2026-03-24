@@ -12,6 +12,8 @@ from INewApp.core.redis_set import redis_client
 from INewApp.common.common_models.level import Level
 from INewApp.domains.users.models.user_table import User
 from INewApp.domains.users.models.user_string import GString
+from INewApp.core.error.exceptions import AppException
+from INewApp.core.error.exception_messages import ErrorCodes
 
 
 patch_user_router = APIRouter()
@@ -42,7 +44,7 @@ async def check_email(session: SessionDep, email: Email):
 async def check_otp(data: VerifyDTO):
     code = redis_client.get(f"change_verify:{data.email}")
     if not code:
-        raise HTTPException(status_code=404, detail="email not found")
+        raise HTTPException(status_code=404, detail="email not found") # 걍 둘다 인증 실패로 퉁 치자
     if code != data.otp:
         raise HTTPException(status_code=404, detail="code is wrong")
     redis_client.delete(f"change_verify:{data.email}")
@@ -59,7 +61,7 @@ async def change_password(
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
     if userdata["type"] != "temp":
-        raise HTTPException(status_code=400, detail="이메일 인증 해라")
+        raise HTTPException(status_code=403, detail="이메일 인증 해라")
     stmt = select(User).where(User.email == userdata["sub"])
     user = session.exec(stmt).first()
     if not user:

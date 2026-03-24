@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from typing import Annotated
 from INewApp.core.dependencies import SessionDep
 from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.domains.record.models.record_table import UserRecord
 from INewApp.domains.record.schemas.record_schemas import ChangeRecord
+from INewApp.core.error.exceptions import AppException
+from INewApp.core.error.exception_messages import ErrorCodes
 
 
 record_change_info_router = APIRouter()
@@ -18,9 +20,9 @@ async def record_change_info(
 ):
     record = session.get(UserRecord, record_id)
     if not record:
-        raise HTTPException(status_code=404, detail="Record not found")
+        raise AppException(ErrorCodes.RECORD_NOT_FOUND)
     if record.user_id != int(userdata["sub"]):
-        raise HTTPException(status_code=403, detail="User not found")
+        raise AppException(ErrorCodes.USER_NOT_FOUND)
 
     record.name = change_info.name
 
@@ -38,9 +40,9 @@ async def record_change_info(
 ):
     record = session.get(UserRecord, record_id)
     if not record:
-        raise HTTPException(status_code=404, detail="Record not found")
+        raise AppException(ErrorCodes.RECORD_NOT_FOUND)
     if record.user_id != int(userdata["sub"]):
-        raise HTTPException(status_code=403, detail="User not found")
+        raise AppException(ErrorCodes.USER_NOT_FOUND)
 
     session.delete(record)
     session.commit()

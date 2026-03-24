@@ -1,5 +1,5 @@
 import jwt
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 from datetime import datetime, timedelta
@@ -9,16 +9,18 @@ from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.core.config import settings
 from INewApp.domains.users.schemas.user_schemas import Tokens
 from INewApp.core.redis_set import redis_client
+from INewApp.core.error.exceptions import AppException
+from INewApp.core.error.exception_messages import ErrorCodes
 
 
-LogInOut_router = APIRouter()
+login_out_router = APIRouter()
 
 
-@LogInOut_router.post("/login")
+@login_out_router.post("/login")
 async def login(session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user = auth_manager.check_user(session, form_data.username, form_data.password)
     if not user:
-        raise HTTPException(status_code=400, detail="입력 정보가 일치하지 않습니다")
+        raise AppException(ErrorCodes.WRONG_INFO)
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = jwt_manager.create_token({"sub": str(user.id), "type": "access"}, access_token_expires)
@@ -35,7 +37,7 @@ async def login(session: SessionDep, form_data: Annotated[OAuth2PasswordRequestF
 
 
 
-@LogInOut_router.post("/logout")
+@login_out_router.post("/logout")
 async def logout(access_token: Annotated[str, Depends(jwt_manager.oauth2_scheme)]):
     payload = jwt.decode(access_token, settings.KEY, algorithms=["HS256"])
     user_id = payload["sub"]

@@ -34,8 +34,8 @@ async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotate
 
     if not result:
         raise HTTPException(
-            status_code=404,
-            detail=f"선택한 정보를 DB에서 찾을 수 없습니다. (입력값: {modaldata.strings}, {modaldata.levels})"
+            status_code=400,
+            detail="입력값이 잘못되었습니다."
         )
 
     gs, lv = result

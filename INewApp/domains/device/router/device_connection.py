@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlmodel import select
 from typing import Annotated
 from INewApp.core.dependencies import SessionDep
@@ -6,6 +6,8 @@ from INewApp.domains.device.service.connect_socket import manager
 from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.domains.users.models.user_table import User
 from INewApp.domains.device.schemas.device_register_schemas import DeviceRegisterRequest
+from INewApp.core.error.exceptions import AppException
+from INewApp.core.error.exception_messages import ErrorCodes
 
 
 device_router = APIRouter()
@@ -30,17 +32,17 @@ async def register_device(
     user = session.get(User, userdata["sub"])
 
     if user.device_id:
-        raise HTTPException(400, "이미 등록되어 있습니다")
+        raise AppException(ErrorCodes.REG_ALREADY_DONE)
 
     if not manager.is_device_online(body.device_id):
-        raise HTTPException(404, "기기를 찾을 수 없습니다")
+        raise AppException(ErrorCodes.DEVICE_NOT_FOUND)
 
     existing = session.exec(
         select(User).where(User.device_id == body.device_id)
     ).first()
 
     if existing:
-        raise HTTPException(400, "이미 다른 사용자에게 등록된 기기입니다")
+        raise AppException(ErrorCodes.DEVICE_ALREADY_TAKEN)
 
     user.device_id = body.device_id
     user.is_device = True

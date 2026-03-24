@@ -12,10 +12,10 @@ class JWTManager:
     def __init__(self):
         self.secret_key = settings.KEY
         self.algorithm = "HS256"
-        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
         self.credentials_exception = HTTPException(
             status_code=401,
-            detail="Could not validate credentials",
+            detail="토큰 검증 실패",
             headers={"WWW-Authenticate": "Bearer"}
         )
 
@@ -29,19 +29,16 @@ class JWTManager:
         to_encode.update({"exp": expire})
         return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
 
-    async def check_token(self, token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login"))]):
+    async def check_token(self, token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="/auth/login"))]):
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
 
-            # 검증 로직 type 확인
             if payload.get("type") not in ["access", "temp"]:
                 raise self.credentials_exception
 
-            # 검증 로직 sub 확인
             if not payload.get("sub"):
                 raise self.credentials_exception
 
-            # 검증 로직 blacklist 확인
             if redis_client.get(f"blacklist:{token}"):
                 raise self.credentials_exception
 

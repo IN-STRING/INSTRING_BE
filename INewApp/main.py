@@ -1,12 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from INewApp.domains.infos.info_api import info_router
+
 from INewApp.domains.users.router.user_modal import model_router
 from INewApp.domains.users.router.signup import signup_router
 from INewApp.domains.users.router.song_click import user_song_click_router
 from INewApp.domains.users.router.refresh import refresh_token_router
 from INewApp.domains.users.router.patch_info import patch_user_router
-from INewApp.domains.users.router.login import LogInOut_router
+from INewApp.domains.users.router.login import login_out_router
 from INewApp.domains.users.router.get_user_info import user_info_router
 
 from INewApp.domains.song.router.song_recommendation import song_recommendation_router
@@ -22,6 +24,8 @@ from INewApp.domains.device.socket.sensor_socket_api import sensor_socket
 from INewApp.domains.device.socket.record_socket_api import record_socket_router
 from INewApp.domains.device.socket.front_receive_socket_api import front_socket_router
 
+from INewApp.core.error.exception_handlers import register_exception_handlers
+
 app = FastAPI()
 
 
@@ -33,13 +37,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+register_exception_handlers(app)
+
+app.include_router(info_router)
 app.include_router(signup_router)
 app.include_router(model_router)
 app.include_router(user_song_click_router)
 app.include_router(refresh_token_router)
 app.include_router(patch_user_router)
-
-app.include_router(LogInOut_router)
+app.include_router(login_out_router, prefix="/auth")
 app.include_router(user_song_click_router)
 app.include_router(user_info_router)
 app.include_router(song_recommendation_router)

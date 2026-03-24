@@ -8,6 +8,8 @@ from INewApp.core.config import fm
 from INewApp.domains.users.schemas.user_schemas import Email, UserJoinDTO, VerifyDTO
 from INewApp.core.redis_set import redis_client
 from INewApp.domains.users.models.user_table import User
+from INewApp.core.error.exceptions import AppException
+from INewApp.core.error.exception_messages import ErrorCodes
 
 
 signup_router = APIRouter()
@@ -18,7 +20,7 @@ async def check_email(session: SessionDep, email: Email):
     stmt = select(User).where(User.email == email.email)
     result = session.exec(stmt).first()
     if result:
-        raise HTTPException(status_code=409, detail="이미 가입된 이메일 입니다")
+        raise AppException(ErrorCodes.USER_ALREADY_EXISTS)
 
     otp = auth_manager.make_auth_otp()
     redis_client.setex(f"verify:{email.email}", 300, otp)
