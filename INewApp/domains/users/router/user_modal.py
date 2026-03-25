@@ -7,6 +7,8 @@ from INewApp.domains.users.schemas.modal import ModalDTO
 from INewApp.common.common_models.level import Level
 from INewApp.domains.users.models.user_string import GString
 from INewApp.domains.users.models.user_table import User
+from INewApp.core.error.exceptions import AppException
+from INewApp.core.error.exception_messages import ErrorCodes
 
 
 model_router = APIRouter()
@@ -22,7 +24,7 @@ async def modal_bool(session: SessionDep, userdata: Annotated[dict, Depends(jwt_
 async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
     user = session.get(User, userdata["sub"])
     if user.modal:
-        raise HTTPException(status_code=400, detail="이미 완료함")
+        raise AppException(ErrorCodes.MODAL_ALREADY_DONE)
 
     result = session.exec(
         (
@@ -33,10 +35,7 @@ async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotate
     ).first()
 
     if not result:
-        raise HTTPException(
-            status_code=400,
-            detail="입력값이 잘못되었습니다."
-        )
+        raise AppException(ErrorCodes.WRONG_INFO)
 
     gs, lv = result
 

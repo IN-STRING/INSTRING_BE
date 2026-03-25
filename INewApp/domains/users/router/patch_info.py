@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from sqlmodel import select
 from fastapi_mail import MessageSchema
 from typing import Annotated
@@ -24,7 +24,7 @@ async def check_email(session: SessionDep, email: Email):
     stmt = select(User).where(User.email == email.email)
     result = session.exec(stmt).first()
     if not result:
-        raise HTTPException(status_code=409, detail="가입되지 않은 이메일 입니다")
+        raise AppException(ErrorCodes.USER_EMAIL_NOT_FOUND)
 
     otp = auth_manager.make_auth_otp()
     redis_client.setex(f"change_verify:{email.email}", 300, otp)
@@ -44,9 +44,9 @@ async def check_email(session: SessionDep, email: Email):
 async def check_otp(data: VerifyDTO):
     code = redis_client.get(f"change_verify:{data.email}")
     if not code:
-        raise HTTPException(status_code=404, detail="email not found") # 걍 둘다 인증 실패로 퉁 치자
+        raise AppException(ErrorCodes.FAILED)
     if code != data.otp:
-        raise HTTPException(status_code=404, detail="code is wrong")
+        raise AppException(ErrorCodes.CODE_WRONG)
     redis_client.delete(f"change_verify:{data.email}")
 
     temp_token_expires = timedelta(minutes=5)
@@ -61,11 +61,11 @@ async def change_password(
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
     if userdata["type"] != "temp":
-        raise HTTPException(status_code=403, detail="이메일 인증 해라")
+        raise AppException(ErrorCodes.EMAIL_FORBIDDEN)
     stmt = select(User).where(User.email == userdata["sub"])
     user = session.exec(stmt).first()
     if not user:
-        raise HTTPException(status_code=404, detail="user not found")
+        raise AppException(ErrorCodes.USER_NOT_FOUND)
 
     user.password = auth_manager.hash_password(password.password)
     session.add(user)
@@ -81,7 +81,7 @@ async def change_level(
 ):
     level = session.get(Level, level_id)
     if not level:
-        raise HTTPException(status_code=404, detail="level not found")
+        raise AppException(ErrorCodes.LEVEL_NOT_FOUND)
     user = session.get(User, userdata["sub"])
     user.level_id = level_id
 
@@ -98,7 +98,7 @@ async def change_level(
 ):
     string = session.get(GString, string_id)
     if not string:
-        raise HTTPException(status_code=404, detail="string not found")
+        raise AppException(ErrorCodes.STRING_NOT_FOUND)
     user = session.get(User, userdata["sub"])
     user.string_id = string_id
 

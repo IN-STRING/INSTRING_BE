@@ -1,11 +1,13 @@
 import jwt
-from jwt.exceptions import InvalidTokenError
-from fastapi import APIRouter, HTTPException
+from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
+from fastapi import APIRouter
 from datetime import timedelta
 from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.core.config import settings
 from INewApp.domains.users.schemas.user_schemas import RefreshToken, Tokens
 from INewApp.core.redis_set import redis_client
+from INewApp.core.error.exceptions import AppException
+from INewApp.core.error.exception_messages import ErrorCodes
 
 
 refresh_token_router = APIRouter()
@@ -15,15 +17,17 @@ refresh_token_router = APIRouter()
 async def get_access_token(token: RefreshToken):
     try:
         payload = jwt.decode(token.refresh_token, settings.KEY, algorithms=["HS256"])
-        if payload["type"] != "refresh":
-            raise HTTPException(status_code=401, detail="not token")
-        user_id = payload["sub"]
-        saved_token = redis_client.get(f"refresh:{user_id}")
-        if saved_token is None:
-            raise HTTPException(status_code=401, detail="not token")
-
+    except ExpiredSignatureError:
+        raise AppException(ErrorCodes.TOKEN_EXPIRED)
     except InvalidTokenError:
-        raise HTTPException(status_code=401, detail="not token")
+        raise AppException(ErrorCodes.INVALID_TOKEN)
+
+    if payload["type"] != "refresh":
+        raise AppException(ErrorCodes.WRONG_TOKEN)
+    user_id = payload["sub"]
+    saved_token = redis_client.get(f"refresh:{user_id}")
+    if saved_token is None:
+        raise AppException(ErrorCodes.WRONG_TOKEN)
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = jwt_manager.create_token({"sub": str(user_id), "type": "access"}, access_token_expires)

@@ -1,11 +1,13 @@
 import jwt
 from jwt.exceptions import InvalidTokenError
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, HTTPException, WebSocket
+from fastapi import Depends, WebSocket
 from typing import Annotated
 from datetime import datetime, timedelta, timezone
 from INewApp.core.redis_set import redis_client
 from INewApp.core.config import settings
+from INewApp.core.error.exception_messages import ErrorCodes
+from INewApp.core.error.exceptions import AppException
 
 
 class JWTManager:
@@ -13,11 +15,7 @@ class JWTManager:
         self.secret_key = settings.KEY
         self.algorithm = "HS256"
         self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-        self.credentials_exception = HTTPException(
-            status_code=401,
-            detail="토큰 검증 실패",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        self.credentials_exception = AppException(ErrorCodes.INVALID_TOKEN)
 
     def create_token(self, data: dict, expires_delta: timedelta | None = None):
         to_encode = data.copy()

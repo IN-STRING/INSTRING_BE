@@ -41,9 +41,9 @@ async def check_email(session: SessionDep, email: Email):
 async def check_otp(data: VerifyDTO):
     code = redis_client.get(f"verify:{data.email}")
     if not code:
-        raise HTTPException(status_code=404, detail="email not found")
+        raise AppException(ErrorCodes.FAILED)
     if code != data.otp:
-        raise HTTPException(status_code=404, detail="code is wrong")
+        raise AppException(ErrorCodes.CODE_WRONG)
     redis_client.delete(f"verify:{data.email}")
     redis_client.setex(f"verified:{data.email}", 600, "true")
     return {"message": "인증 성공!"}
@@ -55,7 +55,7 @@ async def login(session: SessionDep, userdata: UserJoinDTO ):
     try:
         result = redis_client.get(f"verified:{userdata.email}")
         if not result:
-            raise HTTPException(status_code=404, detail="인증되지 않은 이메일 입니다")
+            raise AppException(ErrorCodes.EMAIL_FORBIDDEN)
 
         hashed_password = auth_manager.hash_password(userdata.password)
         dict_user = userdata.model_dump()
@@ -64,16 +64,11 @@ async def login(session: SessionDep, userdata: UserJoinDTO ):
 
         session.add(db_user)
         session.commit()
-        # session.refresh(db_user)
-        # return db_user
+
         return {"Message": "회원가입이 성공적으로 완료됬습니다"}
 
     except IntegrityError as e:
         session.rollback()
         print("IntegrityError:", e)
         print("orig:", e.orig)
-        raise HTTPException(status_code=409, detail="이미 가입된 이메일 입니다")
-
-    except Exception as e:
-        session.rollback()
-        raise HTTPException(status_code=500, detail=f"서버 에러: {e}")
+        raise AppException(ErrorCodes.USER_ALREADY_EXISTS)

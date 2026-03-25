@@ -39,12 +39,14 @@ class ErrorCodes:
     DEVICE_ALREADY_TAKEN = ErrorSpec("DEVICE_ALREADY_TAKEN", 409, "이미 다른 사용자가 등록한 id 입니다")
 
     # === Auth ===
+    CODE_WRONG = ErrorSpec("CODE_WRONG", 400, "인증 코드가 옳지 않습니다")
     UNAUTHENTICATED      = ErrorSpec("UNAUTHENTICATED",      401, "로그인이 필요합니다")
-    TOKEN_EXPIRED        = ErrorSpec("TOKEN_EXPIRED",        401, "토큰이 만료되었습니다")
+    TOKEN_EXPIRED = ErrorSpec("TOKEN_EXPIRED", 401, "토큰이 만료되었습니다")
+    INVALID_TOKEN = ErrorSpec("INVALID_TOKEN", 401, "유효하지 않은 토큰입니다")
     WRONG_TOKEN          = ErrorSpec("WRONG_TOKEN", 401, "옳지 않은 토큰 입니다")
     FORBIDDEN            = ErrorSpec("FORBIDDEN",            403, "권한이 없습니다")
-    EMAIL_FORBIDDEN      = ErrorSpec("EMAIL_FORBIDDEN", 403, "인증되지 않은 이메일 입니다")
-    CODE_WRONG = ErrorSpec("CODE_WRONG", 404, "인증에 실패 했습니다")
+    EMAIL_FORBIDDEN      = ErrorSpec("EMAIL_FORBIDDEN", 403, "이메일 인증이 필요합니다")
+    FAILED               = ErrorSpec("FAILED", 500, "인증에 실패하였습니다")
 
     # === Common ===
     VALIDATION_ERROR     = ErrorSpec("VALIDATION_ERROR",     422, "입력 정보가 정확하지 않습니다")

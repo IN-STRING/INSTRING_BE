@@ -5,6 +5,8 @@ from INewApp.core.dependencies import SessionDep
 from INewApp.domains.song.models.song import Song
 from INewApp.common.common_models.song_user_clicked_link import SongUserClickedLink
 from INewApp.core.security.jwt_token import jwt_manager
+from INewApp.core.error.exceptions import AppException
+from INewApp.core.error.exception_messages import ErrorCodes
 
 
 user_song_click_router = APIRouter()
@@ -18,7 +20,7 @@ async def user_song_click(
 ):
     song = session.get(Song, song_id)
     if not song:
-        raise HTTPException(status_code=404, detail="Song not found")
+        raise AppException(ErrorCodes.SONG_NOT_FOUND)
 
     is_song = session.exec(
         select(SongUserClickedLink).where(
