@@ -53,7 +53,7 @@ async def register_device(
     return {"message": "기기 등록 완료"}
 
 
-@device_router.patch("/device/unregister")
+@device_router.delete("/device/unregister")
 async def unregister_device(
     session: SessionDep,
     userdata: Annotated[dict, Depends(jwt_manager.check_token)]

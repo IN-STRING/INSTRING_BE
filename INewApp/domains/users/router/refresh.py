@@ -1,7 +1,7 @@
 import jwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from fastapi import APIRouter
-from datetime import timedelta
+from datetime import timedelta, datetime
 from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.core.config import settings
 from INewApp.domains.users.schemas.user_schemas import RefreshToken, Tokens
@@ -34,6 +34,11 @@ async def get_access_token(token: RefreshToken):
 
     refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     refresh_token = jwt_manager.create_token({"sub": str(user_id), "type": "refresh"}, refresh_token_expires)
+
+    # exp = payload["exp"]
+    # ttl = int(exp - datetime.utcnow().timestamp())
+    # if ttl > 0:
+    #     redis_client.setex(f"blacklist:{saved_token}", ttl, "old_token")
 
     redis_client.setex(
         f"refresh:{user_id}",

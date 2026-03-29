@@ -19,4 +19,4 @@ async def get_song_recommendation(
     user_history ,user_click = song_repository.get_user_click_songs(session, userdata["sub"])
 
     result = song_recommender.recommend(session, user_level ,user_history, user_click, limit)
-    return result
+    return {"recommend": result}

@@ -1,4 +1,4 @@
-from INewApp.core.s3.connect_s3 import s3_client
+from INewApp.core.connect_s3 import s3_client
 from INewApp.core.config import settings
 
 class S3UploadData:

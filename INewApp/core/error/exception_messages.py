@@ -30,7 +30,7 @@ class ErrorCodes:
     STRING_NOT_FOUND     = ErrorSpec("STRING_NOT_FOUND", 404, "해당 줄을 찾을 수 없습니다")
 
     # === MODAL ===
-    WRONG_INFO           = ErrorSpec("WRONG_INFO", 400, "입력 정보가 잘못 되었습니다")
+    WRONG_INFO           = ErrorSpec("WRONG_INFO", 400, "입력 정보가 일치하지 않습니다")
     MODAL_ALREADY_DONE   = ErrorSpec("ALREADY_DONE", 409, "이미 설문을 완료 했습니다")
 
     # == DEVICE ==
@@ -46,7 +46,7 @@ class ErrorCodes:
     WRONG_TOKEN          = ErrorSpec("WRONG_TOKEN", 401, "옳지 않은 토큰 입니다")
     FORBIDDEN            = ErrorSpec("FORBIDDEN",            403, "권한이 없습니다")
     EMAIL_FORBIDDEN      = ErrorSpec("EMAIL_FORBIDDEN", 403, "이메일 인증이 필요합니다")
-    FAILED               = ErrorSpec("FAILED", 500, "인증에 실패하였습니다")
+    FAILED               = ErrorSpec("FAILED", 400, "인증에 실패하였습니다")
 
     # === Common ===
     VALIDATION_ERROR     = ErrorSpec("VALIDATION_ERROR",     422, "입력 정보가 정확하지 않습니다")

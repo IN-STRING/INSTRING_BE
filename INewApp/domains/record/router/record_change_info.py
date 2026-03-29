@@ -28,8 +28,9 @@ async def record_change_info(
 
     session.add(record)
     session.commit()
-    session.refresh(record)
-    return record
+    # session.refresh(record)
+    # return record
+    return {"message": "이름 변경 성공"}
 
 
 @record_change_info_router.delete("/record/delete/info/{record_id}")

@@ -4,7 +4,7 @@ import librosa
 import requests
 import numpy as np
 from scipy.signal import medfilt
-from INewApp.core.s3.connect_s3 import s3_client
+from INewApp.core.connect_s3 import s3_client
 from INewApp.core.config import settings
 from INewApp.domains.ai.chord_model.chord import CordModel
 

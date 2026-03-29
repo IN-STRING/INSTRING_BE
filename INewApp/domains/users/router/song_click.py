@@ -12,7 +12,7 @@ from INewApp.core.error.exception_messages import ErrorCodes
 user_song_click_router = APIRouter()
 
 
-@user_song_click_router.post("/user/song/click/{song_id}")
+@user_song_click_router.get("/user/song/click/{song_id}")
 async def user_song_click(
         song_id: int,
         session: SessionDep,

@@ -40,7 +40,7 @@ async def check_email(session: SessionDep, email: Email):
     return {"Message" : "인증 코드가 성공적으로 발송 되었습니다."}
 
 
-@patch_user_router.post("/check_otp")
+@patch_user_router.post("/change/check_otp")
 async def check_otp(data: VerifyDTO):
     code = redis_client.get(f"change_verify:{data.email}")
     if not code:

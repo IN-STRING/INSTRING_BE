@@ -21,10 +21,6 @@ class Tokens(BaseModel):
 class RefreshToken(BaseModel):
     refresh_token: str
 
-class NewAccessToken(BaseModel):
-    access_token: str
-    token_type: str
-
 class TempToken(BaseModel):
     temp_token: str
     token_type: str

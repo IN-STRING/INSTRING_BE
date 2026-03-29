@@ -32,20 +32,20 @@ def get_string_status(
     progress = min(elapsed / settings.STRING_MAX_DAY, 1.0)
 
     if progress < 0.25:
-        message = "줄 상태가 좋습니다"
-        level = "good"
+        #message = "줄 상태가 좋습니다"
+        status = "good"
     elif progress < 0.5:
-        message = "슬슬 교체를 고려해보세요"
-        level = "normal"
+        #message = "슬슬 교체를 고려해보세요"
+        status = "normal"
     elif progress < 0.75:
-        message = "줄을 교체 하시는 것이 좋습니다!"
-        level = "warning"
+        #message = "줄을 교체 하시는 것이 좋습니다!"
+        status = "warning"
     else:
-        message = "악기줄이 너무 오래 되었습니다!!"
-        level = "danger"
+        #message = "악기줄이 너무 오래 되었습니다!!"
+        status = "danger"
 
     return {
         "string_id": string_id,
-        "message": message,
-        "level": level
+        #"message": message,
+        "status": status
     }

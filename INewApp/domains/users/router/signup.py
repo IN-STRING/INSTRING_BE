@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from sqlalchemy.exc import IntegrityError
@@ -50,7 +52,7 @@ async def check_otp(data: VerifyDTO):
 
 
 
-@signup_router.post("/join")
+@signup_router.post("/join", status_code=HTTPStatus.CREATED)
 async def login(session: SessionDep, userdata: UserJoinDTO ):
     try:
         result = redis_client.get(f"verified:{userdata.email}")

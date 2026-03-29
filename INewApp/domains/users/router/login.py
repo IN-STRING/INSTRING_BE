@@ -7,18 +7,23 @@ from INewApp.core.dependencies import SessionDep
 from INewApp.core.security.auth_mange import auth_manager
 from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.core.config import settings
-from INewApp.domains.users.schemas.user_schemas import Tokens
+from INewApp.domains.users.schemas.user_schemas import Tokens, UserJoinDTO
 from INewApp.core.redis_set import redis_client
 from INewApp.core.error.exceptions import AppException
 from INewApp.core.error.exception_messages import ErrorCodes
 
 
+
 login_out_router = APIRouter()
 
 
-@login_out_router.post("/login")
-async def login(session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user = auth_manager.check_user(session, form_data.username, form_data.password)
+@login_out_router.post("/login") # 여기 json으로 해서 받는걸로 바꿀거임
+async def login(
+        session: SessionDep,
+        #form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+        data: UserJoinDTO
+):
+    user = auth_manager.check_user(session, data.email, data.password)
     if not user:
         raise AppException(ErrorCodes.WRONG_INFO)
 
