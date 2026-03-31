@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from INewApp.core.middlewares import instring_middleware
 
 from INewApp.domains.infos.info_api import info_router
 
@@ -29,13 +29,7 @@ from INewApp.core.error.exception_handlers import register_exception_handlers
 app = FastAPI()
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], # 나중에 프론트 url 추가
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+instring_middleware(app)
 
 register_exception_handlers(app)
 
