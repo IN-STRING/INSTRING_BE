@@ -7,7 +7,7 @@ from INewApp.common.common_models.SongCategory_link import SongCategoryLink
 from INewApp.domains.song.schemas.song_dto import SongCreateRequest
 from INewApp.domains.song.models.song import Song
 from INewApp.domains.ai.SAT_model.SAT_predict import FSpredictor
-from INewApp.domains.ai.chord_model.chord_predict import ChordPredictor
+from INewApp.domains.ai.chord_model.chord_predict import Cpredictor
 
 
 song_contain_router = APIRouter()
@@ -27,12 +27,12 @@ async def song_contain(
         tmp_path = tmp.name
 
     try:
-        chords = ChordPredictor.predict_result(tmp_path)
+        chords = Cpredictor.predict_result(tmp_path)
         style_speed = FSpredictor.analyze_guitar_performance(tmp_path)
 
         song.chord = chords
-        song.style = style_speed.style
-        song.speed = style_speed.speed
+        song.style = style_speed["style"]
+        song.speed = style_speed["tempo"]
 
         dict_song = song.model_dump(exclude={"category_ids"})
         db_song = Song.model_validate(dict_song)

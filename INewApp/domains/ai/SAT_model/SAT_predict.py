@@ -33,8 +33,13 @@ class FingerstylePredictor:
         return torch.load(buffer, map_location=self.device)
 
     def _preprocess(self, file_path):
-        response = requests.get(file_path)
-        y, _ = librosa.load(response, sr=self.sr, mono=True)
+        # response = requests.get(file_path)
+        # y, _ = librosa.load(response, sr=self.sr, mono=True)
+        if file_path.startswith("http"):
+            response = requests.get(file_path)
+            y, _ = librosa.load(io.BytesIO(response.content), sr=self.sr, mono=True)
+        else:
+            y, _ = librosa.load(file_path, sr=self.sr, mono=True)
 
         target_len = self.sr * self.duration
         if len(y) > target_len:
@@ -56,8 +61,13 @@ class FingerstylePredictor:
 
     @staticmethod
     def _estimate_temp(file_path, sr=22050):
-        response = requests.get(file_path)
-        y, sr = librosa.load(response, sr=sr)
+        # response = requests.get(file_path)
+        # y, sr = librosa.load(response, sr=sr)
+        if file_path.startswith("http"):
+            response = requests.get(file_path)
+            y, sr = librosa.load(io.BytesIO(response.content), sr=sr, mono=True)
+        else:
+            y, sr = librosa.load(file_path, sr=sr, mono=True)
 
         duration = librosa.get_duration(y=y, sr=sr)
 

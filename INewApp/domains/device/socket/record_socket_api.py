@@ -169,9 +169,9 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                             if user:
                                 record = UserRecord(
                                     name=file_name,
-                                    style=song_style_speed.style,
+                                    style=song_style_speed["style"],
                                     chord=song_chord,
-                                    speed=song_style_speed.tempo,
+                                    speed=song_style_speed["tempo"],
                                     file_url=file_url,
                                     spec_img_url=spec_img_url,
                                     user_id=user.id,

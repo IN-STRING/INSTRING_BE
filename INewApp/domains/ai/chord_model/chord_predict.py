@@ -35,8 +35,14 @@ class ChordPredictor:
 
 
     def _predict_song(self, audio_path):
-        response = requests.get(audio_path)
-        y, SR = librosa.load(response, sr=self.sr)
+        # response = requests.get(audio_path)
+        # y, SR = librosa.load(response, sr=self.sr)
+
+        if audio_path.startswith("http"):
+            response = requests.get(audio_path)
+            y, SR = librosa.load(io.BytesIO(response.content), sr=self.sr)
+        else:
+            y, SR = librosa.load(audio_path, sr=self.sr)
 
         cqt = librosa.cqt(y=y, sr=SR, hop_length=self.cqt_move, n_bins=self.crom)
         chroma = librosa.feature.chroma_cqt(C=cqt, n_chroma=12, n_octaves=7)
