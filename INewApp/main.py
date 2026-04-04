@@ -14,6 +14,7 @@ from INewApp.domains.users.router.get_user_info import user_info_router
 from INewApp.domains.song.router.song_recommendation import song_recommendation_router
 from INewApp.domains.song.router.song_page import song_router
 from INewApp.domains.song.router.search_category import search_router
+from INewApp.domains.song.router.song_contain import song_contain_router
 
 from INewApp.domains.record.router.record_name_search import search_records_router
 from INewApp.domains.record.router.record_info import record_info_router
@@ -44,6 +45,7 @@ app.include_router(user_song_click_router)
 app.include_router(user_info_router)
 app.include_router(song_recommendation_router)
 app.include_router(song_router)
+app.include_router(song_contain_router)
 app.include_router(search_router)
 app.include_router(search_records_router)
 app.include_router(record_info_router)

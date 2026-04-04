@@ -164,7 +164,7 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                             ).first()
 
                             song_chord = Cpredictor.predict_result(file_url)
-                            song_style_speed = FSpredictor.analyze_guitar_performance(spec_img_url)
+                            song_style_speed = FSpredictor.analyze_guitar_performance(file_url)
 
                             if user:
                                 record = UserRecord(
