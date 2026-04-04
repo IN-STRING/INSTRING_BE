@@ -3,6 +3,7 @@ import tempfile
 from typing import Annotated
 from fastapi import APIRouter, File, UploadFile, Depends
 from INewApp.core.dependencies import SessionDep
+from INewApp.common.common_models.SongCategory_link import SongCategoryLink
 from INewApp.domains.song.schemas.song_dto import SongCreateRequest
 from INewApp.domains.song.models.song import Song
 from INewApp.domains.ai.SAT_model.SAT_predict import FSpredictor
@@ -32,10 +33,17 @@ async def song_contain(
         song.chord = chords
         song.style = style_speed.style
         song.speed = style_speed.speed
-        dict_song = song.model_dump()
+
+        dict_song = song.model_dump(exclude={"category_ids"})
         db_song = Song.model_validate(dict_song)
 
         session.add(db_song)
+        session.flush()
+
+        for category_id in song.category_ids:
+            link = SongCategoryLink(song_id=db_song.id, category_id=category_id)
+            session.add(link)
+
         session.commit()
 
     finally:

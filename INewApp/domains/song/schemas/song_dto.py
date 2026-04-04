@@ -34,6 +34,7 @@ class SongCreateRequest(BaseModel):
     speed: str = ""
     style: str = ""
     file_url: str = ""
+    category_ids: list[int] = []
 
     @classmethod
     def as_form(
@@ -42,10 +43,12 @@ class SongCreateRequest(BaseModel):
         artist: str = Form(...),
         level_id: int = Form(...),
         youtube_url: str = Form(...),
+        category_ids: list[int] = Form(default=[]),
     ):
         return cls(
             name=name,
             artist=artist,
             level_id=level_id,
-            tube_url=youtube_url
+            tube_url=youtube_url,
+            category_ids=category_ids,
         )
