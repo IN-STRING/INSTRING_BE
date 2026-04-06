@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from INewApp.core.dependencies import SessionDep
 from INewApp.domains.song.schemas.song_dto import WS
 from INewApp.domains.song.models.song import Song

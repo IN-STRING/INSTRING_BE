@@ -12,7 +12,7 @@ record_change_info_router = APIRouter()
 
 
 @record_change_info_router.patch("/record/change/info/{record_id}")
-async def record_change_info(
+async def record_change_name(
         session: SessionDep,
         record_id: int,
         change_info: ChangeRecord,
@@ -34,7 +34,7 @@ async def record_change_info(
 
 
 @record_change_info_router.delete("/record/delete/info/{record_id}")
-async def record_change_info(
+async def record_delete(
         session: SessionDep,
         record_id: int,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]

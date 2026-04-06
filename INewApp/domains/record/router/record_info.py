@@ -15,7 +15,7 @@ record_info_router = APIRouter()
 
 
 @record_info_router.get("/record/list", response_model=SearchRecords)
-async def record_info(
+async def record_info_list(
         session: SessionDep,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):

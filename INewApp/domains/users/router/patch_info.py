@@ -91,7 +91,7 @@ async def change_level(
 
 
 @patch_user_router.patch("/change_string")
-async def change_level(
+async def change_string(
         session: SessionDep,
         string_id: int,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]

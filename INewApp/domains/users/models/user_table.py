@@ -6,7 +6,7 @@ from sqlmodel import Field, Relationship
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app.models.postgresDB.song import Song
+    from INewApp.domains.song.models.song import Song
     from INewApp.domains.record.models.record_table import UserRecord
 
 class User(Base, table=True):

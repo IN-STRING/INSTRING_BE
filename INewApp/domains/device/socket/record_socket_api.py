@@ -187,7 +187,7 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                         os.remove(img_path)
 
                 else:
-                    print("온습도꺼",message)
+                    print("온습도",message)
                     await manager.send_to_front(device_id, message["text"])
 
             elif "bytes" in message:

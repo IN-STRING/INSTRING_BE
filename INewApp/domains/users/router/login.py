@@ -2,7 +2,7 @@ import jwt
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from INewApp.core.dependencies import SessionDep
 from INewApp.core.security.auth_mange import auth_manager
 from INewApp.core.security.jwt_token import jwt_manager
@@ -48,7 +48,7 @@ async def logout(access_token: Annotated[str, Depends(jwt_manager.oauth2_scheme)
     user_id = payload["sub"]
 
     exp = payload["exp"]
-    ttl = int(exp - datetime.utcnow().timestamp())
+    ttl = int(exp - datetime.now(timezone.utc).timestamp())
     if ttl > 0:
         redis_client.setex(f"blacklist:{access_token}", ttl, "logout")
 

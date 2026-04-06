@@ -1,4 +1,4 @@
-from sqlmodel import select, Session
+from sqlmodel import select, Session, func
 from INewApp.domains.song.models.song import Song
 from INewApp.common.common_models.song_user_clicked_link import SongUserClickedLink
 
@@ -28,14 +28,15 @@ class SongRepository:
 
     @staticmethod
     def get_all_click_counts(session: Session):
-        each_songs_total_count = dict()
-        result = session.exec(select(SongUserClickedLink)).all()
-        for song in result:
-            if song.song_id in each_songs_total_count:
-                each_songs_total_count[song.song_id] += song.click_count
-            else:
-                each_songs_total_count[song.song_id] = song.click_count
-        return each_songs_total_count
+        stmt = (
+            select(
+                SongUserClickedLink.song_id,
+                func.sum(SongUserClickedLink.click_count).label("total"),
+            )
+            .group_by(SongUserClickedLink.song_id)
+        )
+        rows = session.exec(stmt).all()
+        return {song_id: int(total) for song_id, total in rows}
 
 
 song_repository = SongRepository()
