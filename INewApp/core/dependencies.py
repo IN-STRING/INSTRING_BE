@@ -1,5 +1,4 @@
 from sqlalchemy.orm import sessionmaker
-from sqlmodel import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import AsyncGenerator, Annotated
 from fastapi import Depends
@@ -12,7 +11,7 @@ AsyncSessionLocal = sessionmaker(
     expire_on_commit=False,
 )
 
-async def get_session() -> AsyncGenerator[Session, None]:
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -22,4 +21,4 @@ async def get_session() -> AsyncGenerator[Session, None]:
             await session.rollback()
             raise
 
-SessionDep = Annotated[Session, Depends(get_session)]
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
