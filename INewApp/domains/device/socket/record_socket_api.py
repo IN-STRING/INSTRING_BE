@@ -2,7 +2,7 @@ import os
 import json
 import uuid
 from sqlmodel import Session, select
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket
 from INewApp.core.db_engine import engine
 from INewApp.domains.users.models.user_table import User
 from INewApp.domains.record.models.record_table import UserRecord
@@ -18,93 +18,6 @@ device_socket_router = APIRouter()
 
 TEMP_DIR = "temp"
 os.makedirs(TEMP_DIR, exist_ok=True)
-
-
-# @device_socket_router.websocket("/ws/record/device/{device_id}")
-# async def ws_sensor_device(websocket: WebSocket, device_id: str):
-#     await manager.connect_device(device_id, websocket)
-#
-#     file = None
-#     file_path = None
-#     file_name = None
-#
-#     try:
-#         while True:
-#             message = await websocket.receive()
-#
-#             if "text" in message:
-#                 data = json.loads(message["text"])
-#
-#                 if data["type"] == "file_start":
-#                     file_name = data["name"]
-#                     unique_id = uuid.uuid4().hex[:8]
-#                     file_path = os.path.join(TEMP_DIR, f"{device_id}_{unique_id}_{file_name}")
-#                     file = open(file_path, "wb")
-#
-#                 elif data["type"] == "file_end":
-#                     if file:
-#                         file.close()
-#                         file = None
-#
-#                         with Session(engine) as session:
-#                             user = session.exec(
-#                                 select(User).where(User.device_id == device_id)
-#                             ).first()
-#
-#                         if not user:
-#                             await websocket.send_text(json.dumps({
-#                                 "type": "error",
-#                                 "message": "등록되지 않은 기기입니다"
-#                             }))
-#                             os.remove(file_path)
-#                             continue
-#
-#                         file_url = upload_s3.upload_record_song(file_path, f"{device_id}_{unique_id}_{file_name}")
-#                         img_path = file_path.replace(".wav", ".png")
-#                         create_audio_img(file_path, img_path)
-#                         spec_img_url = upload_s3.upload_record_image(img_path, f"{device_id}_{unique_id}_{file_name.replace('.wav', '.png')}")
-#
-#                         with Session(engine) as session:
-#                             user = session.exec(
-#                                 select(User).where(User.device_id == device_id)
-#                             ).first()
-#
-#                             song_chord = Cpredictor.predict_result(file_url)
-#                             song_style_speed = FSpredictor.analyze_guitar_performance(spec_img_url)
-#
-#                             if user:
-#                                 record = UserRecord(
-#                                     name=file_name,
-#                                     style=song_style_speed.style,
-#                                     chord=song_chord,
-#                                     speed=song_style_speed.tempo,
-#                                     file_url=file_url,
-#                                     spec_img_url=spec_img_url,
-#                                     user_id=user.id,
-#                                 )
-#                                 session.add(record)
-#                                 session.commit()
-#
-#                         # await manager.send_to_front(device_id, json.dumps({
-#                         #     "type": "record_complete",
-#                         #     "file_url": file_url,
-#                         #     "spec_img_url": spec_img_url,
-#                         # }))
-#                         await manager.send_to_front(device_id, json.dumps({
-#                             "type": "record_complete"
-#                         }))
-#
-#                         os.remove(file_path)
-#                         os.remove(img_path)
-#
-#             elif "bytes" in message:
-#                 if file:
-#                     file.write(message["bytes"])
-#
-#     except WebSocketDisconnect:
-#         manager.disconnect_device(device_id)
-#         if file:
-#             file.close()
 
 
 @device_socket_router.websocket("/ws/device/{device_id}")
@@ -129,7 +42,10 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
 
                 if data["type"] == "file_start":
                     print("녹음 시작", message)
-                    file_name = data["name"]
+
+                    raw_name = data["name"]
+                    file_name = os.path.basename(raw_name)
+
                     unique_id = uuid.uuid4().hex[:8]
                     file_path = os.path.join(TEMP_DIR, f"{device_id}_{unique_id}_{file_name}")
                     file = open(file_path, "wb")
@@ -194,11 +110,6 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                 print("녹음 바이트", message)
                 if file:
                     file.write(message["bytes"])
-
-    # except WebSocketDisconnect:
-    #     manager.disconnect_device(device_id)
-    #     if file:
-    #         file.close()
 
     except Exception as e:
         print(f"{device_id} 에러: {e}")

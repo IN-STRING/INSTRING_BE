@@ -20,10 +20,11 @@ login_out_router = APIRouter()
 @login_out_router.post("/login") # 여기 json으로 해서 받는걸로 바꿀거임
 async def login(
         session: SessionDep,
-        #form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+        #data: Annotated[OAuth2PasswordRequestForm, Depends()],
         data: UserJoinDTO
 ):
     user = auth_manager.check_user(session, data.email, data.password)
+    #user = auth_manager.check_user(session, data.username, data.password)
     if not user:
         raise AppException(ErrorCodes.WRONG_INFO)
 

@@ -6,3 +6,4 @@ __pycache__/
 backup.sql
 .env.docker
 dump.sql
+latest_data.dump

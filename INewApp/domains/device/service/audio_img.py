@@ -1,5 +1,7 @@
 import librosa
 import librosa.display
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 def create_audio_img(wav_path: str, output_path: str):

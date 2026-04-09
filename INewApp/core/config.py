@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     DB_NAME: str
     REDIS_HOST: str
     REDIS_PORT: int
+    REDIS_PASSWORD: str
 
     KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
