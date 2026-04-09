@@ -56,10 +56,11 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                         file.close()
                         file = None
 
-                        with AsyncSessionLocal() as session:
-                            user = await session.exec(
+                        async with AsyncSessionLocal() as session:
+                            result = await session.exec(
                                 select(User).where(User.device_id == device_id)
-                            ).first()
+                            )
+                            user = result.first()
 
                         if not user:
                             await websocket.send_text(json.dumps({
@@ -74,10 +75,11 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                         create_audio_img(file_path, img_path)
                         spec_img_url = upload_s3.upload_record_image(img_path, f"{device_id}_{unique_id}_{file_name.replace('.wav', '.png')}")
 
-                        with AsyncSessionLocal() as session:
-                            user = await session.exec(
+                        async with AsyncSessionLocal() as session:
+                            result = await session.exec(
                                 select(User).where(User.device_id == device_id)
-                            ).first()
+                            )
+                            user = result.first()
 
                             song_chord = Cpredictor.predict_result(file_url)
                             song_style_speed = FSpredictor.analyze_guitar_performance(file_url)

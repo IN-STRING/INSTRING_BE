@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import AsyncGenerator, Annotated
 from fastapi import Depends
 from INewApp.core.db_engine import engine
+from INewApp.core.security.jwt_token import jwt_manager
 
 
 AsyncSessionLocal = sessionmaker(
@@ -22,3 +23,5 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
             raise
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
+
+CurrentUserId = Annotated[dict, Depends(jwt_manager.check_token)]

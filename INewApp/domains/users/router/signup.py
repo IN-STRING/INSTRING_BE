@@ -18,20 +18,22 @@ signup_router = APIRouter()
 @signup_router.post("/email_check")
 async def check_email(session: SessionDep, email: Email):
     stmt = select(User).where(User.email == email.email)
-    result = await session.exec(stmt).first()
-    if result:
+    result = await session.exec(stmt)
+    user = result.first()
+    if user:
         raise AppException(ErrorCodes.USER_ALREADY_EXISTS)
 
-    otp = auth_manager.make_auth_otp()
-    redis_client.setex(f"verify:{email.email}", 300, otp)
-
-    message = MessageSchema(
-        subject="[INSTRING] 회원가입 인증번호",
-        recipients=[email.email],
-        body=f"인증번호는 {otp} 입니다",
-        subtype="html"
-    )
-    await fm.send_message(message)
+    # otp = auth_manager.make_auth_otp()
+    # redis_client.setex(f"verify:{email.email}", 300, otp)
+    #
+    # message = MessageSchema(
+    #     subject="[INSTRING] 회원가입 인증번호",
+    #     recipients=[email.email],
+    #     body=f"인증번호는 {otp} 입니다",
+    #     subtype="html"
+    # )
+    # await fm.send_message(message)
+    await auth_manager.send_otp(email.email)
 
     return {"Message" : "인증 코드가 성공적으로 발송 되었습니다."}
 
@@ -51,7 +53,7 @@ async def check_otp(data: VerifyDTO):
 
 
 @signup_router.post("/join", status_code=HTTPStatus.CREATED)
-async def login(session: SessionDep, userdata: UserJoinDTO ):
+async def join(session: SessionDep, userdata: UserJoinDTO ):
     result = await redis_client.get(f"verified:{userdata.email}")
     if not result:
         raise AppException(ErrorCodes.EMAIL_FORBIDDEN)

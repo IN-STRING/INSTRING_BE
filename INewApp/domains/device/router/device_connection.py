@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import select
 from typing import Annotated
-from INewApp.core.dependencies import SessionDep
+from INewApp.core.dependencies import SessionDep, CurrentUserId
 from INewApp.domains.device.service.connect_socket import manager
 from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.domains.users.models.user_table import User
@@ -27,7 +27,7 @@ async def check_device(
 async def register_device(
     body: DeviceRegisterRequest,
     session: SessionDep,
-    userdata: Annotated[dict, Depends(jwt_manager.check_token)],
+    userdata: CurrentUserId,
 ):
     user = await session.get(User, userdata["sub"])
 
@@ -37,9 +37,10 @@ async def register_device(
     if not manager.is_device_online(body.device_id):
         raise AppException(ErrorCodes.DEVICE_NOT_FOUND)
 
-    existing = await session.exec(
+    result = await session.exec(
         select(User).where(User.device_id == body.device_id)
     ).first()
+    existing = result.first()
 
     if existing:
         raise AppException(ErrorCodes.DEVICE_ALREADY_TAKEN)
@@ -55,7 +56,7 @@ async def register_device(
 @device_router.delete("/device/unregister")
 async def unregister_device(
     session: SessionDep,
-    userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+    userdata: CurrentUserId
 ):
     user = await session.get(User, userdata["sub"])
     user.device_id = None

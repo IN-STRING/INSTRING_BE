@@ -25,7 +25,7 @@ async def search(
     q: str = Query(..., min_length=1),
     limit: int = Query(20, le=50),
 ):
-    results = search_songs(session, q, limit)
+    results = await search_songs(session, q, limit)
     songs = {
         "songs":
                  [

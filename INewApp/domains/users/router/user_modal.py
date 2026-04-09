@@ -1,8 +1,6 @@
 from sqlmodel import select
-from typing import Annotated
-from fastapi import APIRouter, Depends
-from INewApp.core.security.jwt_token import jwt_manager
-from INewApp.core.dependencies import SessionDep
+from fastapi import APIRouter
+from INewApp.core.dependencies import SessionDep, CurrentUserId
 from INewApp.domains.users.schemas.modal import ModalDTO
 from INewApp.common.common_models.level import Level
 from INewApp.domains.users.models.user_string import GString
@@ -15,13 +13,13 @@ model_router = APIRouter()
 
 
 @model_router.get("/modal_check")
-async def modal_bool(session: SessionDep, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
+async def modal_bool(session: SessionDep, userdata: CurrentUserId):
     user = await session.get(User, userdata["sub"])
     return user.modal
 
 
 @model_router.post("/modal_add")
-async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
+async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: CurrentUserId):
     user = await session.get(User, userdata["sub"])
     if user.modal:
         raise AppException(ErrorCodes.MODAL_ALREADY_DONE)
@@ -32,12 +30,13 @@ async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotate
             .where(GString.name == modaldata.strings)
             .where(Level.name == modaldata.levels)
         )
-    ).first()
+    )
+    info = result.first()
 
-    if not result:
+    if not info:
         raise AppException(ErrorCodes.WRONG_INFO)
 
-    gs, lv = result
+    gs, lv = info
 
     user.level_id = lv.id
     user.string_id = gs.id

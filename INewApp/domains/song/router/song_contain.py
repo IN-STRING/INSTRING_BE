@@ -38,7 +38,7 @@ async def song_contain(
         db_song = Song.model_validate(dict_song)
 
         session.add(db_song)
-        session.flush()
+        await session.flush()
 
         for category_id in song.category_ids:
             link = SongCategoryLink(song_id=db_song.id, category_id=category_id)

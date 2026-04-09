@@ -1,8 +1,6 @@
-from fastapi import APIRouter, Depends, Query
-from typing import Annotated
+from fastapi import APIRouter, Query
 from sqlmodel import select
-from INewApp.core.dependencies import SessionDep
-from INewApp.core.security.jwt_token import jwt_manager
+from INewApp.core.dependencies import SessionDep, CurrentUserId
 from INewApp.domains.record.schemas.record_schemas import SearchRecords
 from INewApp.domains.record.models.record_table import UserRecord
 from INewApp.domains.record.service.record_recommend import record_recommender
@@ -17,18 +15,18 @@ record_info_router = APIRouter()
 @record_info_router.get("/record/list", response_model=SearchRecords)
 async def record_info_list(
         session: SessionDep,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+        userdata: CurrentUserId
 ):
     stmt = select(UserRecord).where(UserRecord.user_id == userdata["sub"])
-    records = await session.exec(stmt).all()
-    return {"records": records}
+    records = await session.exec(stmt)
+    return {"records": records.all()}
 
 
 @record_info_router.get("/record/info/{record_id}")
 async def record_info(
         session: SessionDep,
         record_id: int,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)],
+        userdata: CurrentUserId,
         limit: int = Query(default=12),
 ):
     record = await session.get(UserRecord, record_id)

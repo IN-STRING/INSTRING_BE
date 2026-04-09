@@ -1,9 +1,8 @@
 import jwt
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
-from typing import Annotated
 from datetime import datetime, timedelta, timezone
-from INewApp.core.dependencies import SessionDep
+from INewApp.core.dependencies import SessionDep, CurrentUserId
 from INewApp.core.security.auth_mange import auth_manager
 from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.core.config import settings
@@ -23,7 +22,7 @@ async def login(
         #data: Annotated[OAuth2PasswordRequestForm, Depends()],
         data: UserJoinDTO
 ):
-    user = auth_manager.check_user(session, data.email, data.password)
+    user = await auth_manager.check_user(session, data.email, data.password)
     #user = auth_manager.check_user(session, data.username, data.password)
     if not user:
         raise AppException(ErrorCodes.WRONG_INFO)
@@ -44,7 +43,7 @@ async def login(
 
 
 @login_out_router.post("/logout")
-async def logout(access_token: Annotated[str, Depends(jwt_manager.oauth2_scheme)]):
+async def logout(access_token: CurrentUserId):
     payload = jwt.decode(access_token, settings.KEY, algorithms=["HS256"])
     user_id = payload["sub"]
 

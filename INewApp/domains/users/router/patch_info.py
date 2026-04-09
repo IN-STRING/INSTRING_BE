@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from sqlmodel import select
 from fastapi_mail import MessageSchema
-from typing import Annotated
 from datetime import timedelta
-from INewApp.core.dependencies import SessionDep
+from INewApp.core.dependencies import SessionDep, CurrentUserId
 from INewApp.core.security.auth_mange import auth_manager
 from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.core.config import fm
@@ -22,20 +21,22 @@ patch_user_router = APIRouter()
 @patch_user_router.post("/change_info_check")
 async def check_email(session: SessionDep, email: Email):
     stmt = select(User).where(User.email == email.email)
-    result = await session.exec(stmt).first()
-    if not result:
+    result = await session.exec(stmt)
+    user = result.first()
+    if not user:
         raise AppException(ErrorCodes.USER_EMAIL_NOT_FOUND)
 
-    otp = auth_manager.make_auth_otp()
-    redis_client.setex(f"change_verify:{email.email}", 300, otp)
-
-    message = MessageSchema(
-        subject="[INSTRING] 인증번호",
-        recipients=[email.email],
-        body=f"인증번호는 {otp} 입니다",
-        subtype="html"
-    )
-    await fm.send_message(message)
+    # otp = auth_manager.make_auth_otp()
+    # redis_client.setex(f"change_verify:{email.email}", 300, otp)
+    #
+    # message = MessageSchema(
+    #     subject="[INSTRING] 인증번호",
+    #     recipients=[email.email],
+    #     body=f"인증번호는 {otp} 입니다",
+    #     subtype="html"
+    # )
+    # await fm.send_message(message)
+    await auth_manager.send_otp(email.email)
 
     return {"Message" : "인증 코드가 성공적으로 발송 되었습니다."}
 
@@ -58,12 +59,13 @@ async def check_otp(data: VerifyDTO):
 async def change_password(
         session: SessionDep,
         password: Password,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+        userdata: CurrentUserId
 ):
     if userdata["type"] != "temp":
         raise AppException(ErrorCodes.EMAIL_FORBIDDEN)
     stmt = select(User).where(User.email == userdata["sub"])
-    user = await session.exec(stmt).first()
+    result = await session.exec(stmt)
+    user = result.first()
     if not user:
         raise AppException(ErrorCodes.USER_NOT_FOUND)
 
@@ -76,7 +78,7 @@ async def change_password(
 async def change_level(
         session: SessionDep,
         level_id: int,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+        userdata: CurrentUserId
 ):
     level = await session.get(Level, level_id)
     if not level:
@@ -92,7 +94,7 @@ async def change_level(
 async def change_string(
         session: SessionDep,
         string_id: int,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+        userdata: CurrentUserId
 ):
     string = await session.get(GString, string_id)
     if not string:
@@ -107,7 +109,7 @@ async def change_string(
 @patch_user_router.delete("/user_delete")
 async def withdraw(
     session: SessionDep,
-    userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+    userdata: CurrentUserId
 ):
     user = await session.get(User, userdata["sub"])
 

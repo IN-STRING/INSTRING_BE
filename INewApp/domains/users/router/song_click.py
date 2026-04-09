@@ -1,10 +1,8 @@
-from fastapi import APIRouter, Depends
-from typing import Annotated
+from fastapi import APIRouter
 from sqlmodel import select
-from INewApp.core.dependencies import SessionDep
+from INewApp.core.dependencies import SessionDep, CurrentUserId
 from INewApp.domains.song.models.song import Song
 from INewApp.common.common_models.song_user_clicked_link import SongUserClickedLink
-from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.core.error.exceptions import AppException
 from INewApp.core.error.exception_messages import ErrorCodes
 
@@ -16,18 +14,19 @@ user_song_click_router = APIRouter()
 async def user_song_click(
         song_id: int,
         session: SessionDep,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+        userdata: CurrentUserId
 ):
     song = await session.get(Song, song_id)
     if not song:
         raise AppException(ErrorCodes.SONG_NOT_FOUND)
 
-    is_song = await session.exec(
+    result = await session.exec(
         select(SongUserClickedLink).where(
             SongUserClickedLink.song_id == song_id,
             SongUserClickedLink.user_id == userdata["sub"]
         )
-    ).first()
+    )
+    is_song = result.first()
 
     if is_song:
         is_song.click_count += 1

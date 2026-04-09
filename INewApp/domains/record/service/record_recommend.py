@@ -21,8 +21,8 @@ class RecordingRecommender:
         self.weight_popularity = weight_popularity
 
     async def recommend(self, session: AsyncSession, user_level: int, analysis: dict, limit: int = 10) -> list[dict]:
-        candidates = self._get_candidates(session, user_level)
-        popularity = self._build_popularity(session)
+        candidates = await self._get_candidates(session, user_level)
+        popularity = await self._build_popularity(session)
 
         scored = []
         for song, level_weight in candidates:
@@ -101,13 +101,13 @@ class RecordingRecommender:
             if not (11 <= level <= 15):
                 continue
 
-            songs = self.song_repo.get_songs_by_level(session, level)
+            songs = await self.song_repo.get_songs_by_level(session, level)
 
             for song in songs:
                 candidates.append((song, weight))
 
         if not candidates:
-            candidates = self._fallback_search(session, user_level)
+            candidates = await self._fallback_search(session, user_level)
 
         return candidates
 
@@ -121,7 +121,7 @@ class RecordingRecommender:
                 continue
 
             weight = max(0.1, 1.0 - abs(diff) * 0.2)
-            songs = self.song_repo.get_songs_by_level(session, level)
+            songs = await self.song_repo.get_songs_by_level(session, level)
 
             for song in songs:
                 fallback.append((song, weight))
@@ -132,7 +132,7 @@ class RecordingRecommender:
         return fallback
 
     async def _build_popularity(self, session: AsyncSession) -> dict:
-        all_clicks = self.song_repo.get_all_click_counts(session)
+        all_clicks = await self.song_repo.get_all_click_counts(session)
 
         if not all_clicks:
             return {}

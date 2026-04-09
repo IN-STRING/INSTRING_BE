@@ -32,10 +32,10 @@ class SongRecommender:
     async def recommend(self, session: AsyncSession, user_level: int, user_history: list[int],
                   user_clicks: list[SongUserClickedLink], limit: int = 10) -> list[dict]:
 
-        history_songs = self.song_repo.get_song_by_ids(session, user_history)
-        preference = self._build_preference(session, user_clicks)
-        popularity = self._build_popularity(session)
-        level_of_songs = self._get_song_by_level(session, user_level, user_history)
+        history_songs = await self.song_repo.get_song_by_ids(session, user_history)
+        preference = await self._build_preference(session, user_clicks)
+        popularity = await self._build_popularity(session)
+        level_of_songs = await self._get_song_by_level(session, user_level, user_history)
         scored_songs = []
         for song, level_weight in level_of_songs:
             base_score = self._score(song, history_songs, preference, popularity)
@@ -97,7 +97,7 @@ class SongRecommender:
         if not user_clicks:
             return {"techniques": {}, "tempos": {}, "artists": {}}
 
-        clicked_songs = self.song_repo.get_song_by_ids(
+        clicked_songs = await self.song_repo.get_song_by_ids(
             session, [song.song_id for song in user_clicks]
         )
         clicked_map = {song.song_id: song.click_count for song in user_clicks}
@@ -120,7 +120,7 @@ class SongRecommender:
 
 
     async def _build_popularity(self, session: AsyncSession):
-        all_clicks = self.song_repo.get_all_click_counts(session)
+        all_clicks = await self.song_repo.get_all_click_counts(session)
 
         if not all_clicks:
             return {}
@@ -144,14 +144,14 @@ class SongRecommender:
             if not (11 <= level <= 15):
                 continue
 
-            songs = self.song_repo.get_songs_by_level(session, level)
+            songs = await self.song_repo.get_songs_by_level(session, level)
 
             for song in songs:
                 if song.id not in user_history:
                     song_level_weighted_list.append((song, weight))
 
         if not song_level_weighted_list:
-            song_level_weighted_list = self._fallback_search(session, user_level, user_history)
+            song_level_weighted_list = await self._fallback_search(session, user_level, user_history)
 
         return song_level_weighted_list
 
@@ -168,7 +168,7 @@ class SongRecommender:
             # 멀어질수록 가중치 낮게
             weight = max(0.1, 1.0 - abs(diff) * 0.2)
 
-            songs = self.song_repo.get_songs_by_level(session, level)
+            songs = await self.song_repo.get_songs_by_level(session, level)
 
             for song in songs:
                 if song.id not in user_history:

@@ -1,7 +1,5 @@
-from fastapi import APIRouter, Depends
-from typing import Annotated
-from INewApp.core.dependencies import SessionDep
-from INewApp.core.security.jwt_token import jwt_manager
+from fastapi import APIRouter
+from INewApp.core.dependencies import SessionDep, CurrentUserId
 from INewApp.domains.record.models.record_table import UserRecord
 from INewApp.domains.record.schemas.record_schemas import ChangeRecord
 from INewApp.core.error.exceptions import AppException
@@ -16,7 +14,7 @@ async def record_change_name(
         session: SessionDep,
         record_id: int,
         change_info: ChangeRecord,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+        userdata: CurrentUserId
 ):
     record = await session.get(UserRecord, record_id)
     if not record:
@@ -34,7 +32,7 @@ async def record_change_name(
 async def record_delete(
         session: SessionDep,
         record_id: int,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+        userdata: CurrentUserId
 ):
     record = await session.get(UserRecord, record_id)
     if not record:

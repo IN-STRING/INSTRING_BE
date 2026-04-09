@@ -1,21 +1,19 @@
-from fastapi import APIRouter, Query, Depends
-from typing import Annotated
+from fastapi import APIRouter, Query
 from INewApp.domains.record.service.record_search import search_records
-from INewApp.core.security.jwt_token import jwt_manager
-from INewApp.core.dependencies import SessionDep
+from INewApp.core.dependencies import SessionDep, CurrentUserId
 
 
 search_records_router = APIRouter()
 
 
 @search_records_router.get("/records/search")
-def search(
+async def search(
     session: SessionDep,
-    userdata: Annotated[dict, Depends(jwt_manager.check_token)],
+    userdata: CurrentUserId,
     q: str = Query(..., min_length=1),
     limit: int = Query(20, le=50)
 ):
-    results = search_records(session, q, userdata["sub"], limit)
+    results = await search_records(session, q, userdata["sub"], limit)
     return {
         "user_record":
             [

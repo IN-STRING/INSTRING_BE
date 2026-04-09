@@ -1,11 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from datetime import datetime, timezone
-from typing import Annotated
 from INewApp.core.config import settings
-from INewApp.core.dependencies import SessionDep
+from INewApp.core.dependencies import SessionDep, CurrentUserId
 from INewApp.domains.users.models.user_table import User
-from INewApp.core.security.jwt_token import jwt_manager
-
 
 user_info_router = APIRouter()
 
@@ -13,7 +10,7 @@ user_info_router = APIRouter()
 @user_info_router.get("/user/level")
 async def my_level(
         session: SessionDep,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+        userdata: CurrentUserId
 ):
     user = await session.get(User, userdata["sub"])
     level = user.user_level.id
@@ -23,7 +20,7 @@ async def my_level(
 @user_info_router.get("/user/string-status")
 async def get_string_status(
         session: SessionDep,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+        userdata: CurrentUserId
 ):
     user = await session.get(User, userdata["sub"])
 
