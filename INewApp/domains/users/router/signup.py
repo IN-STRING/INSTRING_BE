@@ -1,8 +1,6 @@
 from http import HTTPStatus
-
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from sqlmodel import select
-from sqlalchemy.exc import IntegrityError
 from fastapi_mail import MessageSchema
 from INewApp.core.dependencies import SessionDep
 from INewApp.core.security.auth_mange import auth_manager
@@ -20,7 +18,7 @@ signup_router = APIRouter()
 @signup_router.post("/email_check")
 async def check_email(session: SessionDep, email: Email):
     stmt = select(User).where(User.email == email.email)
-    result = session.exec(stmt).first()
+    result = await session.exec(stmt).first()
     if result:
         raise AppException(ErrorCodes.USER_ALREADY_EXISTS)
 
@@ -41,7 +39,7 @@ async def check_email(session: SessionDep, email: Email):
 
 @signup_router.post("/check_otp")
 async def check_otp(data: VerifyDTO):
-    code = redis_client.get(f"verify:{data.email}")
+    code = await redis_client.get(f"verify:{data.email}")
     if not code:
         raise AppException(ErrorCodes.FAILED)
     if code != data.otp:
@@ -54,23 +52,15 @@ async def check_otp(data: VerifyDTO):
 
 @signup_router.post("/join", status_code=HTTPStatus.CREATED)
 async def login(session: SessionDep, userdata: UserJoinDTO ):
-    try:
-        result = redis_client.get(f"verified:{userdata.email}")
-        if not result:
-            raise AppException(ErrorCodes.EMAIL_FORBIDDEN)
+    result = await redis_client.get(f"verified:{userdata.email}")
+    if not result:
+        raise AppException(ErrorCodes.EMAIL_FORBIDDEN)
 
-        hashed_password = auth_manager.hash_password(userdata.password)
-        dict_user = userdata.model_dump()
-        dict_user["password"] = hashed_password
-        db_user = User.model_validate(dict_user)
+    hashed_password = auth_manager.hash_password(userdata.password)
+    dict_user = userdata.model_dump()
+    dict_user["password"] = hashed_password
+    db_user = User.model_validate(dict_user)
 
-        session.add(db_user)
-        session.commit()
+    session.add(db_user)
 
-        return {"Message": "회원가입이 성공적으로 완료됬습니다"}
-
-    except IntegrityError as e:
-        session.rollback()
-        print("IntegrityError:", e)
-        print("orig:", e.orig)
-        raise AppException(ErrorCodes.USER_ALREADY_EXISTS)
+    return {"Message": "회원가입이 성공적으로 완료됬습니다"}

@@ -1,10 +1,25 @@
-from INewApp.core.db_engine import engine
+from sqlalchemy.orm import sessionmaker
 from sqlmodel import Session
-from typing import Annotated
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import AsyncGenerator, Annotated
 from fastapi import Depends
+from INewApp.core.db_engine import engine
 
-def get_session():
-    with Session(bind=engine) as session:
-        yield session
+
+AsyncSessionLocal = sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
+
+async def get_session() -> AsyncGenerator[Session, None]:
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+
+        except Exception:
+            await session.rollback()
+            raise
 
 SessionDep = Annotated[Session, Depends(get_session)]

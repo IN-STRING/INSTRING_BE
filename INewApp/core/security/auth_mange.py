@@ -1,7 +1,8 @@
 import string
 import secrets
 from pwdlib import PasswordHash
-from sqlmodel import Session, select
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 from INewApp.domains.users.models.user_table import User
 
 class AuthManager:
@@ -20,8 +21,8 @@ class AuthManager:
         otp = ''.join(secrets.choice(char) for _ in range(6))
         return otp
 
-    def check_user(self, session: Session, email: str, password: str):
-        user = session.exec(select(User).where(User.email == email)).first()
+    async def check_user(self, session: AsyncSession, email: str, password: str):
+        user = await session.exec(select(User).where(User.email == email)).first()
         if not user:
             return False
         if not self.verify_password(password, user.password):

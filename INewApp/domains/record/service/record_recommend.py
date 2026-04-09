@@ -1,3 +1,4 @@
+from sqlalchemy.ext.asyncio import AsyncSession
 from INewApp.common.utils.song_repo_class import song_repository
 
 class RecordingRecommender:
@@ -19,7 +20,7 @@ class RecordingRecommender:
         self.weight_chord = weight_chord
         self.weight_popularity = weight_popularity
 
-    def recommend(self, session, user_level: int, analysis: dict, limit: int = 10) -> list[dict]:
+    async def recommend(self, session: AsyncSession, user_level: int, analysis: dict, limit: int = 10) -> list[dict]:
         candidates = self._get_candidates(session, user_level)
         popularity = self._build_popularity(session)
 
@@ -91,7 +92,7 @@ class RecordingRecommender:
 
         return len(intersection) / len(union)
 
-    def _get_candidates(self, session, user_level: int) -> list[tuple]:
+    async def _get_candidates(self, session: AsyncSession, user_level: int) -> list[tuple]:
         candidates = []
 
         for level_diff, weight in self.LEVEL_WEIGHTS.items():
@@ -110,7 +111,7 @@ class RecordingRecommender:
 
         return candidates
 
-    def _fallback_search(self, session, user_level: int) -> list[tuple]:
+    async def _fallback_search(self, session: AsyncSession, user_level: int) -> list[tuple]:
         fallback = []
 
         for diff in [2, -2, 3, -3, 4, -4]:
@@ -130,7 +131,7 @@ class RecordingRecommender:
 
         return fallback
 
-    def _build_popularity(self, session) -> dict:
+    async def _build_popularity(self, session: AsyncSession) -> dict:
         all_clicks = self.song_repo.get_all_click_counts(session)
 
         if not all_clicks:

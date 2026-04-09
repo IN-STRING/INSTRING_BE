@@ -15,7 +15,7 @@ class ErrorCodes:
     USER_ALREADY_EXISTS  = ErrorSpec("USER_ALREADY_EXISTS",  409, "이미 가입된 이메일입니다")
 
     # === Record ===
-    RECORD_NOT_FOUND      = ErrorSpec("RECORD_NOT_FOUND",      404, "녹음 파일을 찾지 못했습니다")
+    RECORD_NOT_FOUND     = ErrorSpec("RECORD_NOT_FOUND",      404, "녹음 파일을 찾지 못했습니다")
 
     # == Category ==
     CATEGORY_NOT_FOUND   = ErrorSpec("CATEGORY_NOT_FOUND", 404, "해당 카테고리를 찾지 못했습니다")
@@ -39,10 +39,10 @@ class ErrorCodes:
     DEVICE_ALREADY_TAKEN = ErrorSpec("DEVICE_ALREADY_TAKEN", 409, "이미 다른 사용자가 등록한 id 입니다")
 
     # === Auth ===
-    CODE_WRONG = ErrorSpec("CODE_WRONG", 400, "인증 코드가 옳지 않습니다")
+    CODE_WRONG           = ErrorSpec("CODE_WRONG", 400, "인증 코드가 옳지 않습니다")
     UNAUTHENTICATED      = ErrorSpec("UNAUTHENTICATED",      401, "로그인이 필요합니다")
-    TOKEN_EXPIRED = ErrorSpec("TOKEN_EXPIRED", 401, "토큰이 만료되었습니다")
-    INVALID_TOKEN = ErrorSpec("INVALID_TOKEN", 401, "유효하지 않은 토큰입니다")
+    TOKEN_EXPIRED        = ErrorSpec("TOKEN_EXPIRED", 401, "토큰이 만료되었습니다")
+    INVALID_TOKEN        = ErrorSpec("INVALID_TOKEN", 401, "유효하지 않은 토큰입니다")
     WRONG_TOKEN          = ErrorSpec("WRONG_TOKEN", 401, "옳지 않은 토큰 입니다")
     FORBIDDEN            = ErrorSpec("FORBIDDEN",            403, "권한이 없습니다")
     EMAIL_FORBIDDEN      = ErrorSpec("EMAIL_FORBIDDEN", 403, "이메일 인증이 필요합니다")

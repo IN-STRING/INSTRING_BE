@@ -25,7 +25,7 @@ async def get_access_token(token: RefreshToken):
     if payload["type"] != "refresh":
         raise AppException(ErrorCodes.WRONG_TOKEN)
     user_id = payload["sub"]
-    saved_token = redis_client.get(f"refresh:{user_id}")
+    saved_token = await redis_client.get(f"refresh:{user_id}")
     if saved_token is None:
         raise AppException(ErrorCodes.WRONG_TOKEN)
 
@@ -35,10 +35,10 @@ async def get_access_token(token: RefreshToken):
     refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     refresh_token = jwt_manager.create_token({"sub": str(user_id), "type": "refresh"}, refresh_token_expires)
 
-    # exp = payload["exp"]
-    # ttl = int(exp - datetime.utcnow().timestamp())
-    # if ttl > 0:
-    #     redis_client.setex(f"blacklist:{saved_token}", ttl, "old_token")
+    exp = payload["exp"]
+    ttl = int(exp - datetime.utcnow().timestamp())
+    if ttl > 0:
+        redis_client.setex(f"blacklist:{saved_token}", ttl, "old_token")
 
     redis_client.setex(
         f"refresh:{user_id}",

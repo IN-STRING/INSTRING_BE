@@ -1,4 +1,5 @@
-from sqlmodel import select, Session, func
+from sqlmodel import select, func
+from sqlmodel.ext.asyncio.session import AsyncSession
 from INewApp.domains.song.models.song import Song
 from INewApp.common.common_models.song_user_clicked_link import SongUserClickedLink
 
@@ -6,20 +7,20 @@ from INewApp.common.common_models.song_user_clicked_link import SongUserClickedL
 class SongRepository:
 
     @staticmethod
-    def get_song_by_ids(session: Session, ids: list[int]):
+    async def get_song_by_ids(session: AsyncSession, ids: list[int]):
         result = session.exec(select(Song).where(Song.id.in_(ids))).all()
         return result
 
     @staticmethod
-    def get_songs_by_level(session: Session, level_id: int):
-        result = session.exec(select(Song).where(Song.level_id == level_id)).all()
+    async def get_songs_by_level(session: AsyncSession, level_id: int):
+        result = await session.exec(select(Song).where(Song.level_id == level_id)).all()
         return result
 
     @staticmethod
-    def get_user_click_songs(session: Session, user_id: int):
+    async def get_user_click_songs(session: AsyncSession, user_id: int):
         only_ids = []
         stmt = select(SongUserClickedLink).where(SongUserClickedLink.user_id == user_id)
-        result = session.exec(stmt).all()
+        result = await session.exec(stmt).all()
 
         for song in result:
             only_ids.append(song.song_id)
@@ -27,7 +28,7 @@ class SongRepository:
         return only_ids, result
 
     @staticmethod
-    def get_all_click_counts(session: Session):
+    async def get_all_click_counts(session: AsyncSession):
         stmt = (
             select(
                 SongUserClickedLink.song_id,
@@ -35,7 +36,7 @@ class SongRepository:
             )
             .group_by(SongUserClickedLink.song_id)
         )
-        rows = session.exec(stmt).all()
+        rows = await session.exec(stmt).all()
         return {song_id: int(total) for song_id, total in rows}
 
 

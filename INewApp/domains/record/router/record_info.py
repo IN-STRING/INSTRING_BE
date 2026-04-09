@@ -20,7 +20,7 @@ async def record_info_list(
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
     stmt = select(UserRecord).where(UserRecord.user_id == userdata["sub"])
-    records = session.exec(stmt).all()
+    records = await session.exec(stmt).all()
     return {"records": records}
 
 
@@ -31,8 +31,8 @@ async def record_info(
         userdata: Annotated[dict, Depends(jwt_manager.check_token)],
         limit: int = Query(default=12),
 ):
-    record = session.get(UserRecord, record_id)
-    user = session.get(User, userdata["sub"])
+    record = await session.get(UserRecord, record_id)
+    user = await session.get(User, userdata["sub"])
     if not record:
         raise AppException(ErrorCodes.RECORD_NOT_FOUND)
     if record.user_id != int(userdata["sub"]):

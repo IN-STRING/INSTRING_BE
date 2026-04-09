@@ -21,7 +21,6 @@ from INewApp.domains.record.router.record_info import record_info_router
 from INewApp.domains.record.router.record_change_info import record_change_info_router
 
 from INewApp.domains.device.router.device_connection import device_router
-from INewApp.domains.device.socket.sensor_socket_api import sensor_socket
 from INewApp.domains.device.socket.record_socket_api import device_socket_router
 from INewApp.domains.device.socket.front_receive_socket_api import front_socket_router
 
@@ -50,7 +49,6 @@ app.include_router(search_records_router)
 app.include_router(record_info_router)
 app.include_router(record_change_info_router)
 app.include_router(device_router)
-#app.include_router(sensor_socket)
 app.include_router(device_socket_router)
 app.include_router(front_socket_router)
 

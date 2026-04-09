@@ -15,7 +15,7 @@ async def get_song_recommendation(
         userdata: Annotated[dict, Depends(jwt_manager.check_token)],
         limit: int = Query(default=12),
 ):
-    user_level = session.get(User, userdata["sub"]).level_id
+    user_level = await session.get(User, userdata["sub"]).level_id
     user_history ,user_click = song_repository.get_user_click_songs(session, userdata["sub"])
 
     result = song_recommender.recommend(session, user_level ,user_history, user_click, limit)

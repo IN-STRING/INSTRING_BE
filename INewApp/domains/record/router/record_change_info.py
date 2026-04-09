@@ -18,7 +18,7 @@ async def record_change_name(
         change_info: ChangeRecord,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
-    record = session.get(UserRecord, record_id)
+    record = await session.get(UserRecord, record_id)
     if not record:
         raise AppException(ErrorCodes.RECORD_NOT_FOUND)
     if record.user_id != int(userdata["sub"]):
@@ -27,9 +27,6 @@ async def record_change_name(
     record.name = change_info.name
 
     session.add(record)
-    session.commit()
-    # session.refresh(record)
-    # return record
     return {"message": "이름 변경 성공"}
 
 
@@ -39,12 +36,11 @@ async def record_delete(
         record_id: int,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
-    record = session.get(UserRecord, record_id)
+    record = await session.get(UserRecord, record_id)
     if not record:
         raise AppException(ErrorCodes.RECORD_NOT_FOUND)
     if record.user_id != int(userdata["sub"]):
         raise AppException(ErrorCodes.USER_NOT_FOUND)
 
     session.delete(record)
-    session.commit()
     return {"Message": "파일이 성공적으로 삭제 되었습니다"}

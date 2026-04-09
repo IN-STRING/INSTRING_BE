@@ -1,6 +1,6 @@
 from sqlmodel import select
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.core.dependencies import SessionDep
 from INewApp.domains.users.schemas.modal import ModalDTO
@@ -16,17 +16,17 @@ model_router = APIRouter()
 
 @model_router.get("/modal_check")
 async def modal_bool(session: SessionDep, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
-    user = session.get(User, userdata["sub"])
+    user = await session.get(User, userdata["sub"])
     return user.modal
 
 
 @model_router.post("/modal_add")
 async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
-    user = session.get(User, userdata["sub"])
+    user = await session.get(User, userdata["sub"])
     if user.modal:
         raise AppException(ErrorCodes.MODAL_ALREADY_DONE)
 
-    result = session.exec(
+    result = await session.exec(
         (
             select(GString, Level)
             .where(GString.name == modaldata.strings)
@@ -45,6 +45,4 @@ async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: Annotate
     user.is_device = modaldata.device
 
     session.add(user)
-    session.commit()
-    session.refresh(user)
     return {"Message": "success"}

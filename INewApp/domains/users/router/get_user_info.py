@@ -11,18 +11,21 @@ user_info_router = APIRouter()
 
 
 @user_info_router.get("/user/level")
-async def my_level(session: SessionDep, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
-    user = session.get(User, userdata["sub"])
+async def my_level(
+        session: SessionDep,
+        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+):
+    user = await session.get(User, userdata["sub"])
     level = user.user_level.id
     return {"level": level}
 
 
 @user_info_router.get("/user/string-status")
-def get_string_status(
+async def get_string_status(
         session: SessionDep,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
-    user = session.get(User, userdata["sub"])
+    user = await session.get(User, userdata["sub"])
 
     string_id = user.user_string.id
     changed_at = user.updated_at

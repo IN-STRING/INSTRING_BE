@@ -1,7 +1,7 @@
 from sqlalchemy import text
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
-def search_records(session: Session, query: str, user_id: int, limit: int = 20):
+async def search_records(session: AsyncSession, query: str, user_id: int, limit: int = 20):
     sql = text("""
         SELECT 
             id, name, style, chord, speed, user_id,
@@ -17,5 +17,5 @@ def search_records(session: Session, query: str, user_id: int, limit: int = 20):
         LIMIT :limit
     """)
 
-    result = session.exec(sql, params={"query": query, "user_id": user_id, "limit": limit}).all()
+    result = await session.exec(sql, params={"query": query, "user_id": user_id, "limit": limit}).all()
     return result

@@ -44,8 +44,6 @@ async def song_contain(
             link = SongCategoryLink(song_id=db_song.id, category_id=category_id)
             session.add(link)
 
-        session.commit()
-
     finally:
         os.remove(tmp_path)
 

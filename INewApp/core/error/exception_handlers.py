@@ -2,6 +2,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
 from INewApp.core.error.exceptions import AppException
 from INewApp.core.error.exception_messages import ErrorCodes
 
@@ -9,7 +10,7 @@ from INewApp.core.error.exception_messages import ErrorCodes
 logger = logging.getLogger(__name__) # 에러 로그 좀 더 좋게 찍어주는거
 
 
-def register_exception_handlers(app: FastAPI) -> None:
+async def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException):
@@ -20,6 +21,19 @@ def register_exception_handlers(app: FastAPI) -> None:
         if exc.errors:
             body["errors"] = exc.errors
         return JSONResponse(status_code=exc.status, content=body)
+
+
+    @app.exception_handler(IntegrityError) # 여기 관련해서 좀 더 수정하자
+    async def integrity_error_handler(request: Request, exc: IntegrityError):
+        orig = str(exc.orig)
+
+        spec = ErrorCodes.USER_ALREADY_EXISTS
+
+        return JSONResponse(
+            status_code=spec.status,
+            content={"code": spec.code, "detail": spec.default_message},
+        )
+
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -39,6 +53,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                 "errors": errors,
             },
         )
+
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):

@@ -13,14 +13,14 @@ search_router = APIRouter()
 
 @search_router.get("/search/category/{ca_id}", response_model=SearchCategory)
 async def get_ca(ca_id: int, session: SessionDep):
-    result = session.get(Category, ca_id)
+    result = await session.get(Category, ca_id)
     if result is None:
         raise AppException(ErrorCodes.CATEGORY_NOT_FOUND)
     return result
 
 
 @search_router.get("/songs/search")
-def search(
+async def search(
     session: SessionDep,
     q: str = Query(..., min_length=1),
     limit: int = Query(20, le=50),

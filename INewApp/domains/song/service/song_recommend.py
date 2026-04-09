@@ -1,5 +1,5 @@
 from collections import Counter
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from INewApp.domains.song.models.song import Song
 from INewApp.common.common_models.song_user_clicked_link import SongUserClickedLink
 from INewApp.common.utils.song_repo_class import song_repository
@@ -29,23 +29,19 @@ class SongRecommender:
         self.weight_popularity = weight_popularity
 
 
-    def recommend(self, session: Session, user_level: int, user_history: list[int],
+    async def recommend(self, session: AsyncSession, user_level: int, user_history: list[int],
                   user_clicks: list[SongUserClickedLink], limit: int = 10) -> list[dict]:
 
         history_songs = self.song_repo.get_song_by_ids(session, user_history)
-        #print("\n와우1",history_songs)
         preference = self._build_preference(session, user_clicks)
-        #print("\n와우2",preference)
         popularity = self._build_popularity(session)
-        #print("\n와우3",popularity)
         level_of_songs = self._get_song_by_level(session, user_level, user_history)
-        #print("\n와우4",level_of_songs)
         scored_songs = []
         for song, level_weight in level_of_songs:
             base_score = self._score(song, history_songs, preference, popularity)
             final_score = base_score * level_weight
             scored_songs .append((song, final_score))
-        #print("\n와우5",score)
+
         scored_songs .sort(key=lambda x: x[1], reverse=True)
 
         return [
@@ -97,7 +93,7 @@ class SongRecommender:
         return score
 
 
-    def _build_preference(self, session: Session ,user_clicks: list[SongUserClickedLink]):
+    async def _build_preference(self, session: AsyncSession ,user_clicks: list[SongUserClickedLink]):
         if not user_clicks:
             return {"techniques": {}, "tempos": {}, "artists": {}}
 
@@ -123,7 +119,7 @@ class SongRecommender:
         }
 
 
-    def _build_popularity(self, session: Session):
+    async def _build_popularity(self, session: AsyncSession):
         all_clicks = self.song_repo.get_all_click_counts(session)
 
         if not all_clicks:
@@ -140,28 +136,27 @@ class SongRecommender:
         }
 
 
-    def _get_song_by_level(self, session: Session, user_level: int, user_history: list[int]):
+    async def _get_song_by_level(self, session: AsyncSession, user_level: int, user_history: list[int]):
         song_level_weighted_list = []
         for level_diff, weight in self.LEVEL_WEIGHTS.items():
             level = user_level + level_diff
-            #print("레벨 와우",level)
-            if not (11 <= level <= 15): # db 값 적제 문제 때문에 pk값 증가 되서 저래된겨
+
+            if not (11 <= level <= 15):
                 continue
 
             songs = self.song_repo.get_songs_by_level(session, level)
-            #print("check 와우", songs)
+
             for song in songs:
                 if song.id not in user_history:
                     song_level_weighted_list.append((song, weight))
 
         if not song_level_weighted_list:
             song_level_weighted_list = self._fallback_search(session, user_level, user_history)
-        #print(song_level_weighted_list)
 
         return song_level_weighted_list
 
 
-    def _fallback_search(self, session: Session, user_level: int, user_history: list[int]):
+    async def _fallback_search(self, session: AsyncSession, user_level: int, user_history: list[int]):
         fallback = []
 
         for diff in [2, -2, 3, -3, 4, -4]:
@@ -174,7 +169,7 @@ class SongRecommender:
             weight = max(0.1, 1.0 - abs(diff) * 0.2)
 
             songs = self.song_repo.get_songs_by_level(session, level)
-            #print("ㅅㅂ", diff, songs)
+
             for song in songs:
                 if song.id not in user_history:
                     fallback.append((song, weight))

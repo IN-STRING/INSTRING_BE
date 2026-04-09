@@ -1,8 +1,8 @@
 from sqlalchemy import text
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-def search_songs(session: Session, query: str, limit: int = 20):
+async def search_songs(session: AsyncSession, query: str, limit: int = 20):
     sql = text("""
                SELECT id,
                       level_id,
@@ -31,5 +31,5 @@ def search_songs(session: Session, query: str, limit: int = 20):
                    LIMIT :limit
                """)
 
-    results = session.exec(sql, params={"query": query, "limit": limit}).all()
+    results = await session.exec(sql, params={"query": query, "limit": limit}).all()
     return results

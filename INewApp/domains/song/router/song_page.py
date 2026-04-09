@@ -9,7 +9,7 @@ song_router = APIRouter()
 
 @song_router.get("/song/{song_id}", response_model=WS)
 async def get_song(song_id: int, session: SessionDep):
-    result = session.get(Song, song_id)
+    result = await session.get(Song, song_id)
     if result is None:
         raise AppException(ErrorCodes.SONG_NOT_FOUND)
     return result

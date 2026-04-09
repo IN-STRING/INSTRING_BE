@@ -18,7 +18,7 @@ async def check_device(
         session: SessionDep,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
-    user = session.get(User, userdata["sub"])
+    user = await session.get(User, userdata["sub"])
     return user.is_device
 
 
@@ -29,7 +29,7 @@ async def register_device(
     session: SessionDep,
     userdata: Annotated[dict, Depends(jwt_manager.check_token)],
 ):
-    user = session.get(User, userdata["sub"])
+    user = await session.get(User, userdata["sub"])
 
     if user.device_id:
         raise AppException(ErrorCodes.REG_ALREADY_DONE)
@@ -37,7 +37,7 @@ async def register_device(
     if not manager.is_device_online(body.device_id):
         raise AppException(ErrorCodes.DEVICE_NOT_FOUND)
 
-    existing = session.exec(
+    existing = await session.exec(
         select(User).where(User.device_id == body.device_id)
     ).first()
 
@@ -48,7 +48,6 @@ async def register_device(
     user.is_device = True
 
     session.add(user)
-    session.commit()
 
     return {"message": "기기 등록 완료"}
 
@@ -58,9 +57,8 @@ async def unregister_device(
     session: SessionDep,
     userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
-    user = session.get(User, userdata["sub"])
+    user = await session.get(User, userdata["sub"])
     user.device_id = None
 
     session.add(user)
-    session.commit()
     return {"message": "기기 연결 해제"}

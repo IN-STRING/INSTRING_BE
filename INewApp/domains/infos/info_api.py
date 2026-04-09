@@ -10,17 +10,17 @@ info_router = APIRouter()
 
 @info_router.get("/categories")
 async def get_categories(session: SessionDep):
-    result = session.exec(select(Category)).all()
+    result = await session.exec(select(Category)).all()
     return {"categories": result}
 
 
 @info_router.get("/levels")
 async def get_levels(session: SessionDep):
-    result = session.exec(select(Level)).all()
+    result = await session.exec(select(Level)).all()
     return {"levels": result}
 
 
 @info_router.get("/guitar_strings")
 async def get_guitar_strings(session: SessionDep):
-    result = session.exec(select(GString)).all()
+    result = await session.exec(select(GString)).all()
     return {"strings": result}

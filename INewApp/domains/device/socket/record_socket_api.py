@@ -1,9 +1,9 @@
 import os
 import json
 import uuid
-from sqlmodel import Session, select
+from sqlmodel import select
 from fastapi import APIRouter, WebSocket
-from INewApp.core.db_engine import engine
+from INewApp.core.dependencies import AsyncSessionLocal
 from INewApp.domains.users.models.user_table import User
 from INewApp.domains.record.models.record_table import UserRecord
 from INewApp.domains.ai.SAT_model.SAT_predict import FSpredictor
@@ -56,8 +56,8 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                         file.close()
                         file = None
 
-                        with Session(engine) as session:
-                            user = session.exec(
+                        with AsyncSessionLocal() as session:
+                            user = await session.exec(
                                 select(User).where(User.device_id == device_id)
                             ).first()
 
@@ -74,8 +74,8 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                         create_audio_img(file_path, img_path)
                         spec_img_url = upload_s3.upload_record_image(img_path, f"{device_id}_{unique_id}_{file_name.replace('.wav', '.png')}")
 
-                        with Session(engine) as session:
-                            user = session.exec(
+                        with AsyncSessionLocal() as session:
+                            user = await session.exec(
                                 select(User).where(User.device_id == device_id)
                             ).first()
 
@@ -93,7 +93,7 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                                     user_id=user.id,
                                 )
                                 session.add(record)
-                                session.commit()
+                                await session.commit()
 
                         await manager.send_to_front(device_id, json.dumps({
                             "type": "record_complete"

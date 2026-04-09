@@ -17,7 +17,7 @@ from INewApp.core.error.exception_messages import ErrorCodes
 login_out_router = APIRouter()
 
 
-@login_out_router.post("/login") # 여기 json으로 해서 받는걸로 바꿀거임
+@login_out_router.post("/login")
 async def login(
         session: SessionDep,
         #data: Annotated[OAuth2PasswordRequestForm, Depends()],

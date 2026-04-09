@@ -22,7 +22,7 @@ patch_user_router = APIRouter()
 @patch_user_router.post("/change_info_check")
 async def check_email(session: SessionDep, email: Email):
     stmt = select(User).where(User.email == email.email)
-    result = session.exec(stmt).first()
+    result = await session.exec(stmt).first()
     if not result:
         raise AppException(ErrorCodes.USER_EMAIL_NOT_FOUND)
 
@@ -42,7 +42,7 @@ async def check_email(session: SessionDep, email: Email):
 
 @patch_user_router.post("/change/check_otp")
 async def check_otp(data: VerifyDTO):
-    code = redis_client.get(f"change_verify:{data.email}")
+    code = await redis_client.get(f"change_verify:{data.email}")
     if not code:
         raise AppException(ErrorCodes.FAILED)
     if code != data.otp:
@@ -63,13 +63,12 @@ async def change_password(
     if userdata["type"] != "temp":
         raise AppException(ErrorCodes.EMAIL_FORBIDDEN)
     stmt = select(User).where(User.email == userdata["sub"])
-    user = session.exec(stmt).first()
+    user = await session.exec(stmt).first()
     if not user:
         raise AppException(ErrorCodes.USER_NOT_FOUND)
 
     user.password = auth_manager.hash_password(password.password)
     session.add(user)
-    session.commit()
     return {"message": "변경 성공"}
 
 
@@ -79,14 +78,13 @@ async def change_level(
         level_id: int,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
-    level = session.get(Level, level_id)
+    level = await session.get(Level, level_id)
     if not level:
         raise AppException(ErrorCodes.LEVEL_NOT_FOUND)
-    user = session.get(User, userdata["sub"])
+    user = await session.get(User, userdata["sub"])
     user.level_id = level_id
 
     session.add(user)
-    session.commit()
     return {"message": "success"}
 
 
@@ -96,14 +94,13 @@ async def change_string(
         string_id: int,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
-    string = session.get(GString, string_id)
+    string = await session.get(GString, string_id)
     if not string:
         raise AppException(ErrorCodes.STRING_NOT_FOUND)
-    user = session.get(User, userdata["sub"])
+    user = await session.get(User, userdata["sub"])
     user.string_id = string_id
 
     session.add(user)
-    session.commit()
     return {"message": "success"}
 
 
@@ -112,8 +109,7 @@ async def withdraw(
     session: SessionDep,
     userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
-    user = session.get(User, userdata["sub"])
+    user = await session.get(User, userdata["sub"])
 
     session.delete(user)
-    session.commit()
     return {"message": "success"}

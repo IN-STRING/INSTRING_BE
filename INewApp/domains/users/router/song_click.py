@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from typing import Annotated
 from sqlmodel import select
 from INewApp.core.dependencies import SessionDep
@@ -18,11 +18,11 @@ async def user_song_click(
         session: SessionDep,
         userdata: Annotated[dict, Depends(jwt_manager.check_token)]
 ):
-    song = session.get(Song, song_id)
+    song = await session.get(Song, song_id)
     if not song:
         raise AppException(ErrorCodes.SONG_NOT_FOUND)
 
-    is_song = session.exec(
+    is_song = await session.exec(
         select(SongUserClickedLink).where(
             SongUserClickedLink.song_id == song_id,
             SongUserClickedLink.user_id == userdata["sub"]
@@ -35,18 +35,4 @@ async def user_song_click(
         click_song = SongUserClickedLink(song_id=song_id, user_id=userdata["sub"])
         session.add(click_song)
 
-    session.commit()
     return {"message": "클릭 기록 추가됨"}
-
-
-# 테스트로 옮길거
-# @user_song_click_router.get("/user/song/click")
-# async def user_song_click_get(session: SessionDep, userdata: Annotated[dict, Depends(jwt_manager.check_token)]):
-#     only_ids = []
-#     stmt = select(SongUserClickedLink).where(SongUserClickedLink.user_id == userdata["sub"])
-#     result = session.exec(stmt).all()
-#
-#     for song in result:
-#         only_ids.append(song.song_id)
-#
-#     return result, only_ids
