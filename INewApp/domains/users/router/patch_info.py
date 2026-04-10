@@ -36,7 +36,7 @@ async def check_email(session: SessionDep, email: Email):
     #     subtype="html"
     # )
     # await fm.send_message(message)
-    await auth_manager.send_otp(email.email)
+    await auth_manager.send_otp(email.email, prefix="change_verify")
 
     return {"Message" : "인증 코드가 성공적으로 발송 되었습니다."}
 

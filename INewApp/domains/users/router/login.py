@@ -1,8 +1,10 @@
 import jwt
 from fastapi import APIRouter
+from fastapi import Depends
+from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import datetime, timedelta, timezone
-from INewApp.core.dependencies import SessionDep, CurrentUserId
+from INewApp.core.dependencies import SessionDep
 from INewApp.core.security.auth_mange import auth_manager
 from INewApp.core.security.jwt_token import jwt_manager
 from INewApp.core.config import settings
@@ -43,7 +45,7 @@ async def login(
 
 
 @login_out_router.post("/logout")
-async def logout(access_token: CurrentUserId):
+async def logout(access_token: Annotated[str, Depends(jwt_manager.oauth2_scheme)]):
     payload = jwt.decode(access_token, settings.KEY, algorithms=["HS256"])
     user_id = payload["sub"]
 

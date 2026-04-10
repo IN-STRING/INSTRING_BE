@@ -39,7 +39,7 @@ async def register_device(
 
     result = await session.exec(
         select(User).where(User.device_id == body.device_id)
-    ).first()
+    )
     existing = result.first()
 
     if existing:

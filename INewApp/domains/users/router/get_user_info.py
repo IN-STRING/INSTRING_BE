@@ -1,4 +1,6 @@
 from fastapi import APIRouter
+from sqlmodel import select
+from sqlalchemy.orm import selectinload
 from datetime import datetime, timezone
 from INewApp.core.config import settings
 from INewApp.core.dependencies import SessionDep, CurrentUserId
@@ -12,7 +14,12 @@ async def my_level(
         session: SessionDep,
         userdata: CurrentUserId
 ):
-    user = await session.get(User, userdata["sub"])
+    result = await session.exec(
+        select(User)
+        .options(selectinload(User.user_level), selectinload(User.user_string))
+        .where(User.id == userdata["sub"])
+    )
+    user = result.first()
     level = user.user_level.id
     return {"level": level}
 
@@ -22,7 +29,12 @@ async def get_string_status(
         session: SessionDep,
         userdata: CurrentUserId
 ):
-    user = await session.get(User, userdata["sub"])
+    result = await session.exec(
+        select(User)
+        .options(selectinload(User.user_level), selectinload(User.user_string))
+        .where(User.id == userdata["sub"])
+    )
+    user = result.first()
 
     string_id = user.user_string.id
     changed_at = user.updated_at

@@ -42,6 +42,6 @@ async def record_info(
         "chords": record.chord,
     }
 
-    results = record_recommender.recommend(session, user_level=user.level_id, analysis=analysis, limit=limit)
+    results = await record_recommender.recommend(session, user_level=user.level_id, analysis=analysis, limit=limit)
 
     return {"record_info": record, "recommend": results}

@@ -81,9 +81,10 @@ async def ws_sensor_device(websocket: WebSocket, device_id: str):
                             )
                             user = result.first()
 
-                            song_chord = Cpredictor.predict_result(file_url)
-                            song_style_speed = FSpredictor.analyze_guitar_performance(file_url)
+                        song_chord = Cpredictor.predict_result(file_url)
+                        song_style_speed = FSpredictor.analyze_guitar_performance(file_url)
 
+                        async with AsyncSessionLocal() as session:
                             if user:
                                 record = UserRecord(
                                     name=file_name,

@@ -12,14 +12,17 @@ class AuthManager:
     def __init__(self):
         self.password_hash = PasswordHash.recommended()
 
+
     def hash_password(self, password: str):
         return self.password_hash.hash(password)
+
 
     def verify_password(self, password: str, hashed_password: str):
         return self.password_hash.verify(password, hashed_password)
 
+
     @staticmethod
-    def make_auth_otp():
+    def _make_auth_otp():
         char = string.ascii_letters + string.digits
         otp = ''.join(secrets.choice(char) for _ in range(6))
         return otp
@@ -33,10 +36,10 @@ class AuthManager:
             return False
         return user
 
-    @staticmethod
-    async def send_otp(email: str):
-        otp = auth_manager.make_auth_otp()
-        redis_client.setex(f"verify:{email}", 300, otp)
+
+    async def send_otp(self, email: str, prefix: str = "verify"):
+        otp = self._make_auth_otp()
+        redis_client.setex(f"{prefix}:{email}", 300, otp)
 
         message = MessageSchema(
             subject="[INSTRING] 회원가입 인증번호",
@@ -45,5 +48,6 @@ class AuthManager:
             subtype="html"
         )
         await fm.send_message(message)
+
 
 auth_manager = AuthManager()

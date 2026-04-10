@@ -17,5 +17,5 @@ async def search_records(session: AsyncSession, query: str, user_id: int, limit:
         LIMIT :limit
     """)
 
-    result = await session.exec(sql, params={"query": query, "user_id": user_id, "limit": limit}).all()
-    return result
+    result = await session.exec(sql, params={"query": query, "user_id": user_id, "limit": limit})
+    return result.all()
