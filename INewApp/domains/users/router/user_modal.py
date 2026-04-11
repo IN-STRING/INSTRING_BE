@@ -14,13 +14,13 @@ model_router = APIRouter()
 
 @model_router.get("/modal_check")
 async def modal_bool(session: SessionDep, userdata: CurrentUserId):
-    user = await session.get(User, userdata["sub"])
+    user = await session.get(User, int(userdata["sub"]))
     return user.modal
 
 
 @model_router.post("/modal_add")
 async def modal_add(session: SessionDep, modaldata: ModalDTO, userdata: CurrentUserId):
-    user = await session.get(User, userdata["sub"])
+    user = await session.get(User, int(userdata["sub"]))
     if user.modal:
         raise AppException(ErrorCodes.MODAL_ALREADY_DONE)
 

@@ -12,7 +12,7 @@ front_socket_router = APIRouter()
 async def socket_front(session: SessionDep, websocket: WebSocket):
 
     userdata = await jwt_manager.check_token_ws(websocket)
-    user = await session.get(User, userdata["sub"])
+    user = await session.get(User, int(userdata["sub"]))
     await manager.connect_front(user.device_id, websocket)
 
     try:

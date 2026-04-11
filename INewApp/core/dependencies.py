@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import AsyncGenerator, Annotated
 from fastapi import Depends
 from INewApp.core.db_engine import engine

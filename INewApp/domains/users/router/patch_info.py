@@ -83,7 +83,7 @@ async def change_level(
     level = await session.get(Level, level_id)
     if not level:
         raise AppException(ErrorCodes.LEVEL_NOT_FOUND)
-    user = await session.get(User, userdata["sub"])
+    user = await session.get(User, int(userdata["sub"]))
     user.level_id = level_id
 
     session.add(user)
@@ -99,7 +99,7 @@ async def change_string(
     string = await session.get(GString, string_id)
     if not string:
         raise AppException(ErrorCodes.STRING_NOT_FOUND)
-    user = await session.get(User, userdata["sub"])
+    user = await session.get(User, int(userdata["sub"]))
     user.string_id = string_id
 
     session.add(user)
@@ -111,7 +111,7 @@ async def withdraw(
     session: SessionDep,
     userdata: CurrentUserId
 ):
-    user = await session.get(User, userdata["sub"])
+    user = await session.get(User, int(userdata["sub"]))
 
     session.delete(user)
     return {"message": "success"}

@@ -21,11 +21,11 @@ login_out_router = APIRouter()
 @login_out_router.post("/login")
 async def login(
         session: SessionDep,
-        #data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        data: UserJoinDTO
+        data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        #data: UserJoinDTO
 ):
-    user = await auth_manager.check_user(session, data.email, data.password)
-    #user = auth_manager.check_user(session, data.username, data.password)
+    #user = await auth_manager.check_user(session, data.email, data.password)
+    user = await auth_manager.check_user(session, data.username, data.password)
     if not user:
         raise AppException(ErrorCodes.WRONG_INFO)
 
@@ -47,7 +47,7 @@ async def login(
 @login_out_router.post("/logout")
 async def logout(access_token: Annotated[str, Depends(jwt_manager.oauth2_scheme)]):
     payload = jwt.decode(access_token, settings.KEY, algorithms=["HS256"])
-    user_id = payload["sub"]
+    user_id = int(payload["sub"])
 
     exp = payload["exp"]
     ttl = int(exp - datetime.now(timezone.utc).timestamp())

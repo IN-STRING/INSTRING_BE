@@ -11,11 +11,11 @@ async def search_records(session: AsyncSession, query: str, user_id: int, limit:
         WHERE 
             (search_vector @@ websearch_to_tsquery('simple', :query)
              OR similarity(name, :query) > 0.15)
-            AND (:user_id IS NULL OR user_id = :user_id)
+            AND (CAST(:user_id AS INTEGER) IS NULL OR user_id = :user_id)
         ORDER BY (ts_rank(search_vector, websearch_to_tsquery('simple', :query)) * 2 
                   + similarity(name, :query)) DESC
         LIMIT :limit
     """)
 
-    result = await session.exec(sql, params={"query": query, "user_id": user_id, "limit": limit})
+    result = await session.execute(sql, params={"query": query, "user_id": user_id, "limit": limit})
     return result.all()

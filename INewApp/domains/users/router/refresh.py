@@ -30,10 +30,10 @@ async def get_access_token(token: RefreshToken):
         raise AppException(ErrorCodes.WRONG_TOKEN)
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = jwt_manager.create_token({"sub": str(user_id), "type": "access"}, access_token_expires)
+    access_token = jwt_manager.create_token({"sub": user_id, "type": "access"}, access_token_expires)
 
     refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    refresh_token = jwt_manager.create_token({"sub": str(user_id), "type": "refresh"}, refresh_token_expires)
+    refresh_token = jwt_manager.create_token({"sub": user_id, "type": "refresh"}, refresh_token_expires)
 
     exp = payload["exp"]
     ttl = int(exp - datetime.utcnow().timestamp())

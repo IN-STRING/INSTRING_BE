@@ -21,11 +21,12 @@ class SongRepository:
         only_ids = []
         stmt = select(SongUserClickedLink).where(SongUserClickedLink.user_id == user_id)
         result = await session.exec(stmt)
+        songs = result.all()
 
-        for song in result:
+        for song in songs:
             only_ids.append(song.song_id)
 
-        return only_ids, result.all()
+        return only_ids, songs
 
     @staticmethod
     async def get_all_click_counts(session: AsyncSession):

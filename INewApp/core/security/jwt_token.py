@@ -37,7 +37,8 @@ class JWTManager:
             if not payload.get("sub"):
                 raise self.credentials_exception
 
-            if await redis_client.get(f"blacklist:{token}"):
+            blacklist_token = await redis_client.get(f"blacklist:{token}")
+            if blacklist_token:
                 raise self.credentials_exception
 
             return payload
@@ -63,7 +64,8 @@ class JWTManager:
                 await websocket.close(code=1008, reason="Invalid token")
                 return None
 
-            if await redis_client.get(f"blacklist:{token}"):
+            blacklist_token = await redis_client.get(f"blacklist:{token}")
+            if blacklist_token:
                 await websocket.close(code=1008, reason="Token revoked")
                 return None
 

@@ -17,7 +17,7 @@ async def record_info_list(
         session: SessionDep,
         userdata: CurrentUserId
 ):
-    stmt = select(UserRecord).where(UserRecord.user_id == userdata["sub"])
+    stmt = select(UserRecord).where(UserRecord.user_id == int(userdata["sub"]))
     records = await session.exec(stmt)
     return {"records": records.all()}
 
@@ -30,7 +30,7 @@ async def record_info(
         limit: int = Query(default=12),
 ):
     record = await session.get(UserRecord, record_id)
-    user = await session.get(User, userdata["sub"])
+    user = await session.get(User, int(userdata["sub"]))
     if not record:
         raise AppException(ErrorCodes.RECORD_NOT_FOUND)
     if record.user_id != int(userdata["sub"]):

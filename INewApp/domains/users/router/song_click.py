@@ -23,7 +23,7 @@ async def user_song_click(
     result = await session.exec(
         select(SongUserClickedLink).where(
             SongUserClickedLink.song_id == song_id,
-            SongUserClickedLink.user_id == userdata["sub"]
+            SongUserClickedLink.user_id == int(userdata["sub"])
         )
     )
     is_song = result.first()
@@ -31,7 +31,7 @@ async def user_song_click(
     if is_song:
         is_song.click_count += 1
     else:
-        click_song = SongUserClickedLink(song_id=song_id, user_id=userdata["sub"])
+        click_song = SongUserClickedLink(song_id=song_id, user_id=int(userdata["sub"]))
         session.add(click_song)
 
     return {"message": "클릭 기록 추가됨"}

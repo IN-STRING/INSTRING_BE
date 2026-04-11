@@ -35,21 +35,22 @@ class SongRecommender:
         history_songs = await self.song_repo.get_song_by_ids(session, user_history)
         preference = await self._build_preference(session, user_clicks)
         popularity = await self._build_popularity(session)
-        level_of_songs = await self._get_song_by_level(session, user_level, user_history)
+        level_of_songs = await self._get_song_by_level(session, user_level, user_history, limit)
+
         scored_songs = []
         for song, level_weight in level_of_songs:
             base_score = self._score(song, history_songs, preference, popularity)
             final_score = base_score * level_weight
-            scored_songs .append((song, final_score))
+            scored_songs.append((song, final_score))
 
-        scored_songs .sort(key=lambda x: x[1], reverse=True)
-
+        scored_songs.sort(key=lambda x: x[1], reverse=True)
+        print(scored_songs)
         return [
             {
                 "song": song,
                 "score": round(score_song, 2),
             }
-            for song, score_song in scored_songs [:limit]
+            for song, score_song in scored_songs[:limit]
         ]
 
 
@@ -136,7 +137,7 @@ class SongRecommender:
         }
 
 
-    async def _get_song_by_level(self, session: AsyncSession, user_level: int, user_history: list[int]):
+    async def _get_song_by_level(self, session: AsyncSession, user_level: int, user_history: list[int], limit: int = 12):
         song_level_weighted_list = []
         for level_diff, weight in self.LEVEL_WEIGHTS.items():
             level = user_level + level_diff

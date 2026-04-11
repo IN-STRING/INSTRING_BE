@@ -10,10 +10,10 @@ from INewApp.core.error.exception_messages import ErrorCodes
 logger = logging.getLogger(__name__) # 에러 로그 좀 더 좋게 찍어주는거
 
 
-async def register_exception_handlers(app: FastAPI) -> None:
+def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(AppException)
-    async def app_exception_handler(request: Request, exc: AppException):
+    def app_exception_handler(request: Request, exc: AppException):
         body: dict = {
             "code": exc.code,
             "detail": exc.detail,
@@ -24,7 +24,7 @@ async def register_exception_handlers(app: FastAPI) -> None:
 
 
     @app.exception_handler(IntegrityError) # 여기 관련해서 좀 더 수정하자
-    async def integrity_error_handler(request: Request, exc: IntegrityError):
+    def integrity_error_handler(request: Request, exc: IntegrityError):
         orig = str(exc.orig)
 
         spec = ErrorCodes.USER_ALREADY_EXISTS
@@ -36,7 +36,7 @@ async def register_exception_handlers(app: FastAPI) -> None:
 
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    def validation_exception_handler(request: Request, exc: RequestValidationError):
         spec = ErrorCodes.VALIDATION_ERROR
         errors = [
             {
@@ -56,7 +56,7 @@ async def register_exception_handlers(app: FastAPI) -> None:
 
 
     @app.exception_handler(Exception)
-    async def unhandled_exception_handler(request: Request, exc: Exception):
+    def unhandled_exception_handler(request: Request, exc: Exception):
         logger.exception("Unhandled exception")
         spec = ErrorCodes.INTERNAL_ERROR
         return JSONResponse(

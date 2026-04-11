@@ -13,7 +13,7 @@ async def search(
     q: str = Query(..., min_length=1),
     limit: int = Query(20, le=50)
 ):
-    results = await search_records(session, q, userdata["sub"], limit)
+    results = await search_records(session, q, int(userdata["sub"]), limit)
     return {
         "user_record":
             [

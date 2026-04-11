@@ -16,9 +16,9 @@ device_router = APIRouter()
 @device_router.get("/device/check")
 async def check_device(
         session: SessionDep,
-        userdata: Annotated[dict, Depends(jwt_manager.check_token)]
+        userdata: CurrentUserId
 ):
-    user = await session.get(User, userdata["sub"])
+    user = await session.get(User, int(userdata["sub"]))
     return user.is_device
 
 
@@ -29,7 +29,7 @@ async def register_device(
     session: SessionDep,
     userdata: CurrentUserId,
 ):
-    user = await session.get(User, userdata["sub"])
+    user = await session.get(User, int(userdata["sub"]))
 
     if user.device_id:
         raise AppException(ErrorCodes.REG_ALREADY_DONE)
@@ -58,7 +58,7 @@ async def unregister_device(
     session: SessionDep,
     userdata: CurrentUserId
 ):
-    user = await session.get(User, userdata["sub"])
+    user = await session.get(User, int(userdata["sub"]))
     user.device_id = None
 
     session.add(user)

@@ -17,7 +17,7 @@ async def my_level(
     result = await session.exec(
         select(User)
         .options(selectinload(User.user_level), selectinload(User.user_string))
-        .where(User.id == userdata["sub"])
+        .where(User.id == int(userdata["sub"]))
     )
     user = result.first()
     level = user.user_level.id
@@ -32,7 +32,7 @@ async def get_string_status(
     result = await session.exec(
         select(User)
         .options(selectinload(User.user_level), selectinload(User.user_string))
-        .where(User.id == userdata["sub"])
+        .where(User.id == int(userdata["sub"]))
     )
     user = result.first()
 

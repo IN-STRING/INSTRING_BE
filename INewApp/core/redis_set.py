@@ -1,4 +1,4 @@
-import redis
+import redis.asyncio as redis
 from INewApp.core.config import settings
 
 redis_client = redis.Redis(
