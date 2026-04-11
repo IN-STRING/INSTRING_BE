@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from INewApp.common.utils.song_repo_class import song_repository
 
-class RecordingRecommender:
 
+class RecordingRecommender:
     LEVEL_WEIGHTS = {
         0: 1.0,
         -1: 0.3,
@@ -21,7 +21,7 @@ class RecordingRecommender:
         self.weight_popularity = weight_popularity
 
     async def recommend(self, session: AsyncSession, user_level: int, analysis: dict, limit: int = 10) -> list[dict]:
-        candidates = await self._get_candidates(session, user_level)
+        candidates = await self._get_candidates(session, user_level, limit)
         popularity = await self._build_popularity(session)
 
         scored = []
@@ -43,17 +43,18 @@ class RecordingRecommender:
     def _score(self, song, analysis: dict, popularity: dict) -> float:
         score = 0.0
 
-        # 주법 일치
-        if song.style == analysis["style"]:
+        analysis_style = analysis.get("style")
+        if song.style and analysis_style and song.style == analysis_style:
             score += self.weight_technique
 
-        # 템포 일치 or 근접
-        score += self._tempo_score(song.speed, analysis["tempo"]) * self.weight_tempo
+        analysis_tempo = analysis.get("tempo")
+        if song.speed and analysis_tempo:
+            score += self._tempo_score(song.speed, analysis_tempo) * self.weight_tempo
 
-        # 코드 유사도
-        score += self._chord_similarity(song.chord, analysis["chords"]) * self.weight_chord
+        analysis_chords = analysis.get("chords")
+        if song.chord and analysis_chords:
+            score += self._chord_similarity(song.chord, analysis_chords) * self.weight_chord
 
-        # 인기도
         pop_score = popularity.get(song.id, 0)
         score += pop_score * self.weight_popularity
 
@@ -79,21 +80,26 @@ class RecordingRecommender:
         bigrams_a = set(zip(song_chords, song_chords[1:]))
         bigrams_b = set(zip(analysis_chords, analysis_chords[1:]))
 
-        # 바이그램이 없으면 코드 1개짜리 단순 집합 비교
         if not bigrams_a or not bigrams_b:
             set_a = set(song_chords)
             set_b = set(analysis_chords)
             intersection = set_a & set_b
             union = set_a | set_b
+            if not union:
+                return 0.0
             return len(intersection) / len(union)
 
         intersection = bigrams_a & bigrams_b
         union = bigrams_a | bigrams_b
 
+        if not union:
+            return 0.0
+
         return len(intersection) / len(union)
 
-    async def _get_candidates(self, session: AsyncSession, user_level: int) -> list[tuple]:
+    async def _get_candidates(self, session: AsyncSession, user_level: int, limit: int) -> list[tuple]:
         candidates = []
+        found_song_ids = set()
 
         for level_diff, weight in self.LEVEL_WEIGHTS.items():
             level = user_level + level_diff
@@ -104,14 +110,22 @@ class RecordingRecommender:
             songs = await self.song_repo.get_songs_by_level(session, level)
 
             for song in songs:
-                candidates.append((song, weight))
+                if song.id not in found_song_ids:
+                    candidates.append((song, weight))
+                    found_song_ids.add(song.id)
 
-        if not candidates:
-            candidates = await self._fallback_search(session, user_level)
+        if len(candidates) < limit:
+            needed_count = limit - len(candidates)
+            fallback_candidates = await self._fallback_search(
+                session, user_level, found_song_ids, needed_count
+            )
+            candidates.extend(fallback_candidates)
 
         return candidates
 
-    async def _fallback_search(self, session: AsyncSession, user_level: int) -> list[tuple]:
+
+    async def _fallback_search(self, session: AsyncSession, user_level: int,
+                               found_song_ids: set, needed_count: int) -> list[tuple]:
         fallback = []
 
         for diff in [2, -2, 3, -3, 4, -4]:
@@ -124,10 +138,14 @@ class RecordingRecommender:
             songs = await self.song_repo.get_songs_by_level(session, level)
 
             for song in songs:
-                fallback.append((song, weight))
+                if song.id in found_song_ids:
+                    continue
 
-            if len(fallback) >= 5:
-                break
+                fallback.append((song, weight))
+                found_song_ids.add(song.id)
+
+                if len(fallback) >= needed_count:
+                    return fallback
 
         return fallback
 
@@ -138,6 +156,10 @@ class RecordingRecommender:
             return {}
 
         max_clicks = max(all_clicks.values())
+
+        if max_clicks <= 0:
+            return {song_id: 0.0 for song_id in all_clicks}
+
         return {song_id: count / max_clicks for song_id, count in all_clicks.items()}
 
 

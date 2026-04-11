@@ -137,8 +137,13 @@ class SongRecommender:
         }
 
 
-    async def _get_song_by_level(self, session: AsyncSession, user_level: int, user_history: list[int], limit: int = 12):
+    async def _get_song_by_level(self, session: AsyncSession, user_level: int, user_history: list[int],
+                                 limit: int = 12):
         song_level_weighted_list = []
+        history_set = set(user_history)
+
+        found_song_ids = set()
+
         for level_diff, weight in self.LEVEL_WEIGHTS.items():
             level = user_level + level_diff
 
@@ -148,16 +153,23 @@ class SongRecommender:
             songs = await self.song_repo.get_songs_by_level(session, level)
 
             for song in songs:
-                if song.id not in user_history:
-                    song_level_weighted_list.append((song, weight))
+                # if song.id not in history_set:
+                song_level_weighted_list.append((song, weight))
+                found_song_ids.add(song.id)
 
-        if not song_level_weighted_list:
-            song_level_weighted_list = await self._fallback_search(session, user_level, user_history)
+        if len(song_level_weighted_list) < limit:
+            needed_count = limit - len(song_level_weighted_list)
+            fallback_songs = await self._fallback_search(
+                session, user_level, history_set, found_song_ids, needed_count
+            )
+
+            song_level_weighted_list.extend(fallback_songs)
 
         return song_level_weighted_list
 
 
-    async def _fallback_search(self, session: AsyncSession, user_level: int, user_history: list[int]):
+    async def _fallback_search(self, session: AsyncSession, user_level: int,
+                               history_set: set[int], found_song_ids: set[int], needed_count: int):
         fallback = []
 
         for diff in [2, -2, 3, -3, 4, -4]:
@@ -166,20 +178,21 @@ class SongRecommender:
             if not (11 <= level <= 15):
                 continue
 
-            # 멀어질수록 가중치 낮게
             weight = max(0.1, 1.0 - abs(diff) * 0.2)
-
             songs = await self.song_repo.get_songs_by_level(session, level)
 
             for song in songs:
-                if song.id not in user_history:
-                    fallback.append((song, weight))
+                if song.id in found_song_ids:
+                    continue
 
-            if len(fallback) >= 12:
-                break
+                # if song.id not in history_set:
+                fallback.append((song, weight))
+                found_song_ids.add(song.id)
+
+                if len(fallback) >= needed_count:
+                    return fallback
 
         return fallback
-
 
     @staticmethod
     def _chord_similarity(song_a: Song, song_b: Song):
